@@ -4,1234 +4,522 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRYPTO ORATOR — Master the Market</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold: #f0b90b;
-    --gold-dim: #c99a08;
-    --green: #0ecb81;
-    --red: #f6465d;
-    --cyan: #00d4ff;
-    --dark: #060a10;
-    --dark2: #0b1120;
-    --dark3: #111827;
-    --panel: rgba(255,255,255,0.03);
-    --border: rgba(240,185,11,0.15);
-    --text: #e0e0e0;
-    --muted: #6b7280;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--dark);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* CUSTOM CURSOR */
-  .cursor {
-    position: fixed;
-    width: 12px; height: 12px;
-    background: var(--gold);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s;
-    mix-blend-mode: difference;
-  }
-  .cursor-ring {
-    position: fixed;
-    width: 40px; height: 40px;
-    border: 1px solid var(--gold);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: all 0.15s ease;
-    opacity: 0.6;
-  }
-
-  /* CANVAS BG */
-  #bg-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  /* GRID OVERLAY */
-  .grid-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-image:
-      linear-gradient(rgba(240,185,11,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(240,185,11,0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  /* NAV */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 1000;
-    padding: 0 40px;
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(6,10,16,0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .nav-logo {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: 1.1rem;
-    color: var(--gold);
-    letter-spacing: 0.15em;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .nav-logo .logo-icon {
-    width: 32px; height: 32px;
-    border: 2px solid var(--gold);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    animation: pulse-border 2s infinite;
-  }
-
-  @keyframes pulse-border {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(240,185,11,0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(240,185,11,0); }
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 36px;
-    list-style: none;
-  }
-
-  .nav-links a {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: color 0.3s;
-    position: relative;
-  }
-
-  .nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px; left: 0;
-    width: 0; height: 1px;
-    background: var(--gold);
-    transition: width 0.3s;
-  }
-
-  .nav-links a:hover { color: var(--gold); }
-  .nav-links a:hover::after { width: 100%; }
-
-  .nav-cta {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--dark);
-    background: var(--gold);
-    border: none;
-    padding: 8px 20px;
-    cursor: none;
-    text-decoration: none;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-    transition: all 0.3s;
-  }
-
-  .nav-cta:hover {
-    background: #fff;
-    transform: translateY(-1px);
-  }
-
-  /* TICKER */
-  .ticker-wrap {
-    position: fixed;
-    top: 70px; left: 0; right: 0;
-    z-index: 999;
-    background: rgba(6,10,16,0.95);
-    border-bottom: 1px solid var(--border);
-    overflow: hidden;
-    height: 38px;
-  }
-
-  .ticker-track {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    animation: ticker-scroll 30s linear infinite;
-    white-space: nowrap;
-    width: max-content;
-  }
-
-  .ticker-track:hover { animation-play-state: paused; }
-
-  @keyframes ticker-scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-
-  .ticker-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 28px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.78rem;
-    border-right: 1px solid var(--border);
-  }
-
-  .ticker-symbol { color: var(--gold); font-weight: 700; }
-  .ticker-price { color: var(--text); }
-  .ticker-change.up { color: var(--green); }
-  .ticker-change.down { color: var(--red); }
-
-  /* WRAPPER */
-  .wrapper {
-    position: relative;
-    z-index: 10;
-  }
-
-  /* HERO */
-  .hero {
-    min-height: 100vh;
-    padding: 180px 80px 100px;
-    display: flex;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-content { max-width: 700px; }
-
-  .hero-tag {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--gold);
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-    opacity: 0;
-    animation: fadeUp 0.8s ease 0.2s forwards;
-  }
-
-  .hero-tag::before {
-    content: '';
-    width: 40px; height: 1px;
-    background: var(--gold);
-  }
-
-  .hero-title {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: clamp(2.5rem, 6vw, 5rem);
-    line-height: 1.05;
-    color: #fff;
-    margin-bottom: 16px;
-    opacity: 0;
-    animation: fadeUp 0.8s ease 0.4s forwards;
-  }
-
-  .hero-title span {
-    color: var(--gold);
-    position: relative;
-    display: inline-block;
-  }
-
-  .hero-title span::after {
-    content: '';
-    position: absolute;
-    bottom: 2px; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--gold), transparent);
-  }
-
-  .hero-sub {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 300;
-    color: var(--muted);
-    line-height: 1.7;
-    max-width: 520px;
-    margin-bottom: 48px;
-    opacity: 0;
-    animation: fadeUp 0.8s ease 0.6s forwards;
-  }
-
-  .hero-btns {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    opacity: 0;
-    animation: fadeUp 0.8s ease 0.8s forwards;
-  }
-
-  .btn-primary {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    color: var(--dark);
-    background: var(--gold);
-    border: none;
-    padding: 14px 32px;
-    cursor: none;
-    text-decoration: none;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s;
-    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-  }
-
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,0.2);
-    transform: translateX(-100%) skewX(-15deg);
-    transition: transform 0.4s;
-  }
-
-  .btn-primary:hover::before { transform: translateX(200%) skewX(-15deg); }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(240,185,11,0.3); }
-
-  .btn-outline {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    color: var(--gold);
-    background: transparent;
-    border: 1px solid var(--gold);
-    padding: 14px 32px;
-    cursor: none;
-    text-decoration: none;
-    transition: all 0.3s;
-    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-  }
-
-  .btn-outline:hover {
-    background: rgba(240,185,11,0.08);
-    transform: translateY(-2px);
-  }
-
-  /* HERO STATS */
-  .hero-stats {
-    position: absolute;
-    right: 80px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    opacity: 0;
-    animation: fadeLeft 0.8s ease 1s forwards;
-  }
-
-  .stat-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 20px 28px;
-    position: relative;
-    overflow: hidden;
-    min-width: 200px;
-  }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px; height: 100%;
-    background: var(--gold);
-  }
-
-  .stat-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(240,185,11,0.05) 0%, transparent 60%);
-  }
-
-  .stat-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .stat-value {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: 1.6rem;
-    color: var(--gold);
-  }
-
-  .stat-badge {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--green);
-    margin-top: 4px;
-  }
-
-  /* LIVE PRICES SECTION */
-  .section-prices {
-    padding: 100px 80px;
-    position: relative;
-  }
-
-  .section-header {
-    text-align: center;
-    margin-bottom: 60px;
-  }
-
-  .section-eyebrow {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--gold);
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    display: block;
-  }
-
-  .section-title {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: clamp(1.8rem, 3vw, 2.8rem);
-    color: #fff;
-  }
-
-  .section-title span { color: var(--gold); }
-
-  .section-line {
-    width: 60px; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 20px auto 0;
-  }
-
-  /* PRICE CARDS */
-  .prices-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
-  }
-
-  .price-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 28px 24px;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s;
-    cursor: none;
-  }
-
-  .price-card::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: radial-gradient(circle at center, rgba(240,185,11,0.06) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-
-  .price-card:hover::before { opacity: 1; }
-
-  .price-card:hover {
-    border-color: rgba(240,185,11,0.4);
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-  }
-
-  .price-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  .crypto-icon {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .crypto-icon svg { width: 28px; height: 28px; }
-
-  .crypto-icon.btc { background: rgba(247,147,26,0.12); border-color: #f7931a; }
-  .crypto-icon.eth { background: rgba(98,126,234,0.12); border-color: #627eea; }
-  .crypto-icon.bnb { background: rgba(240,185,11,0.12); border-color: var(--gold); }
-  .crypto-icon.xrp { background: rgba(0,170,228,0.12); border-color: #00aae4; }
-  .crypto-icon.sol { background: rgba(0,255,163,0.12); border-color: #00ffa3; }
-
-  .price-badge {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    padding: 4px 8px;
-    border-radius: 2px;
-  }
-
-  .price-badge.up { background: rgba(14,203,129,0.1); color: var(--green); border: 1px solid rgba(14,203,129,0.2); }
-  .price-badge.down { background: rgba(246,70,93,0.1); color: var(--red); border: 1px solid rgba(246,70,93,0.2); }
-
-  .crypto-name {
-    font-family: 'Orbitron', monospace;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-
-  .crypto-full {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .crypto-price {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 1.4rem;
-    color: #fff;
-    font-weight: 700;
-    margin-bottom: 6px;
-    letter-spacing: -0.02em;
-  }
-
-  .crypto-change {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .crypto-change.up { color: var(--green); }
-  .crypto-change.down { color: var(--red); }
-
-  /* MINI CHART */
-  .mini-chart {
-    height: 40px;
-    margin-top: 16px;
-    position: relative;
-  }
-
-  .mini-chart svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* LOADING SHIMMER */
-  .shimmer {
-    background: linear-gradient(90deg, var(--dark3) 25%, rgba(255,255,255,0.05) 50%, var(--dark3) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 4px;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  /* ABOUT SECTION */
-  .section-about {
-    padding: 100px 80px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: center;
-  }
-
-  .about-visual {
-    position: relative;
-    height: 480px;
-  }
-
-  .about-orb {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 260px; height: 260px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(240,185,11,0.15) 0%, transparent 70%);
-    border: 1px solid rgba(240,185,11,0.2);
-    animation: orb-pulse 4s ease-in-out infinite;
-  }
-
-  @keyframes orb-pulse {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-  }
-
-  .about-orb::before {
-    content: '';
-    position: absolute;
-    inset: -20px;
-    border-radius: 50%;
-    border: 1px solid rgba(240,185,11,0.1);
-    animation: orb-pulse 4s ease-in-out 0.5s infinite;
-  }
-
-  .about-orb::after {
-    content: '';
-    position: absolute;
-    inset: -40px;
-    border-radius: 50%;
-    border: 1px dashed rgba(240,185,11,0.06);
-    animation: spin 20s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .about-center-text {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    z-index: 2;
-  }
-
-  .about-center-text .big-letter {
-    font-family: 'Orbitron', monospace;
-    font-size: 5rem;
-    font-weight: 900;
-    color: var(--gold);
-    line-height: 1;
-    text-shadow: 0 0 40px rgba(240,185,11,0.5);
-  }
-
-  .about-center-text .small-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-top: 6px;
-  }
-
-  .floating-chips {
-    position: absolute;
-    inset: 0;
-  }
-
-  .chip {
-    position: absolute;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 8px 14px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--gold);
-    letter-spacing: 0.1em;
-    white-space: nowrap;
-    animation: float-chip 6s ease-in-out infinite;
-  }
-
-  .chip:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
-  .chip:nth-child(2) { top: 20%; right: 8%; animation-delay: 1s; }
-  .chip:nth-child(3) { bottom: 30%; left: 0%; animation-delay: 2s; }
-  .chip:nth-child(4) { bottom: 15%; right: 5%; animation-delay: 0.5s; }
-  .chip:nth-child(5) { top: 65%; left: 8%; animation-delay: 1.5s; }
-
-  @keyframes float-chip {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-
-  .about-text .section-eyebrow { text-align: left; }
-
-  .about-heading {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
-    color: #fff;
-    line-height: 1.2;
-    margin-bottom: 24px;
-  }
-
-  .about-heading span { color: var(--gold); }
-
-  .about-desc {
-    font-size: 1.05rem;
-    font-weight: 300;
-    color: #9ca3af;
-    line-height: 1.8;
-    margin-bottom: 36px;
-  }
-
-  .about-features {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 40px;
-  }
-
-  .feature-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .feature-icon {
-    width: 36px; height: 36px;
-    background: rgba(240,185,11,0.08);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    flex-shrink: 0;
-  }
-
-  .feature-text strong {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #fff;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .feature-text span {
-    font-size: 0.85rem;
-    color: var(--muted);
-    font-weight: 300;
-  }
-
-  /* STRATEGIES SECTION */
-  .section-strategies {
-    padding: 100px 80px;
-    background: linear-gradient(180deg, transparent, rgba(240,185,11,0.02), transparent);
-  }
-
-  .strategies-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 60px;
-  }
-
-  .strategy-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 36px 32px;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s;
-  }
-
-  .strategy-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-
-  .strategy-card:hover::before { opacity: 1; }
-
-  .strategy-card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(240,185,11,0.3);
-    box-shadow: 0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(240,185,11,0.1);
-  }
-
-  .strategy-num {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.6rem;
-    color: var(--gold);
-    opacity: 0.4;
-    letter-spacing: 0.15em;
-    margin-bottom: 20px;
-  }
-
-  .strategy-icon-wrap {
-    width: 56px; height: 56px;
-    margin-bottom: 24px;
-    position: relative;
-  }
-
-  .strategy-icon-bg {
-    width: 100%; height: 100%;
-    background: rgba(240,185,11,0.06);
-    border: 1px solid rgba(240,185,11,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    transition: all 0.3s;
-  }
-
-  .strategy-card:hover .strategy-icon-bg {
-    background: rgba(240,185,11,0.12);
-    border-color: rgba(240,185,11,0.35);
-  }
-
-  .strategy-title {
-    font-family: 'Orbitron', monospace;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #fff;
-    margin-bottom: 12px;
-    letter-spacing: 0.05em;
-  }
-
-  .strategy-desc {
-    font-size: 0.9rem;
-    font-weight: 300;
-    color: var(--muted);
-    line-height: 1.7;
-  }
-
-  .strategy-tag {
-    display: inline-block;
-    margin-top: 20px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--gold);
-    border: 1px solid rgba(240,185,11,0.2);
-    padding: 4px 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  /* CONNECT SECTION */
-  .section-connect {
-    padding: 100px 80px;
-  }
-
-  .connect-inner {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 80px;
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-  }
-
-  .connect-inner::before {
-    content: '';
-    position: absolute;
-    top: -100px; left: 50%;
-    transform: translateX(-50%);
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(240,185,11,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .connect-title {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: clamp(1.8rem, 3vw, 2.8rem);
-    color: #fff;
-    margin-bottom: 16px;
-  }
-
-  .connect-title span { color: var(--gold); }
-
-  .connect-desc {
-    font-size: 1.05rem;
-    font-weight: 300;
-    color: var(--muted);
-    max-width: 520px;
-    margin: 0 auto 48px;
-    line-height: 1.7;
-  }
-
-  .social-links {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .social-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 28px;
-    border: 1px solid var(--border);
-    color: var(--text);
-    text-decoration: none;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    letter-spacing: 0.08em;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-    background: rgba(255,255,255,0.02);
-  }
-
-  .social-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .social-btn.telegram::before { background: rgba(0,136,204,0.1); }
-  .social-btn.twitter::before { background: rgba(29,161,242,0.1); }
-  .social-btn.discord::before { background: rgba(114,137,218,0.1); }
-
-  .social-btn:hover::before { opacity: 1; }
-  .social-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.3);
-  }
-
-  .social-btn.telegram { border-color: rgba(0,136,204,0.3); }
-  .social-btn.twitter { border-color: rgba(29,161,242,0.3); }
-  .social-btn.discord { border-color: rgba(114,137,218,0.3); }
-
-  .social-icon {
-    width: 20px; height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-  }
-
-  /* FOOTER */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 32px 80px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .footer-logo {
-    font-family: 'Orbitron', monospace;
-    font-weight: 900;
-    font-size: 0.85rem;
-    color: var(--gold);
-    letter-spacing: 0.15em;
-  }
-
-  .footer-text {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
-
-  .footer-disclaimer {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: #3d4451;
-    text-align: right;
-    max-width: 300px;
-    line-height: 1.5;
-  }
-
-  /* ANIMATIONS */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeLeft {
-    from { opacity: 0; transform: translateX(30px) translateY(-50%); }
-    to { opacity: 1; transform: translateX(0) translateY(-50%); }
-  }
-
-  /* SCROLL ANIMATIONS */
-  .reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .reveal-delay-1 { transition-delay: 0.1s; }
-  .reveal-delay-2 { transition-delay: 0.2s; }
-  .reveal-delay-3 { transition-delay: 0.3s; }
-  .reveal-delay-4 { transition-delay: 0.4s; }
-  .reveal-delay-5 { transition-delay: 0.5s; }
-
-  /* SCAN LINE */
-  .scanline {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(240,185,11,0.3), transparent);
-    z-index: 9997;
-    animation: scan 8s linear infinite;
-    pointer-events: none;
-  }
-
-  @keyframes scan {
-    0% { top: 0; opacity: 1; }
-    95% { opacity: 1; }
-    100% { top: 100vh; opacity: 0; }
-  }
-
-  /* NOISE */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9990;
-    opacity: 0.5;
-  }
-
-  /* UPDATE DOT */
-  .live-dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    background: var(--green);
-    border-radius: 50%;
-    margin-right: 6px;
-    animation: blink 1s ease-in-out infinite;
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
-  }
-
-  /* GLOW LINE */
-  .glow-line {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 0 auto;
-    animation: glow-pulse 3s ease-in-out infinite;
-  }
-
-  @keyframes glow-pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
-  }
-
-  /* API STATUS */
-  .api-status {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    text-align: center;
-    margin-top: 16px;
-    letter-spacing: 0.1em;
-  }
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+:root{
+  --gold:#f0b90b;--gold2:#c99a08;
+  --green:#0ecb81;--red:#f6465d;
+  --dark:#04080f;--dark2:#080d17;--dark3:#0d1526;
+  --panel:rgba(255,255,255,0.025);
+  --border:rgba(240,185,11,0.12);--border2:rgba(240,185,11,0.25);
+  --text:#dde1ea;--muted:#5a6478;
+}
+body{background:var(--dark);color:var(--text);font-family:'Rajdhani',sans-serif;overflow-x:hidden;}
+
+/* ===== CURSOR (desktop only) ===== */
+.cursor,.cursor-ring{display:none;}
+@media(pointer:fine){
+  body{cursor:none;}
+  .cursor{display:block;position:fixed;width:10px;height:10px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;}
+  .cursor-ring{display:block;position:fixed;width:36px;height:36px;border:1.5px solid rgba(240,185,11,0.7);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .14s ease;}
+}
+
+/* ===== FIXED BG ===== */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(240,185,11,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(240,185,11,0.025) 1px,transparent 1px);background-size:55px 55px;}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(240,185,11,0.25),transparent);z-index:9990;animation:scan 10s linear infinite;pointer-events:none;}
+@keyframes scan{0%{top:0;opacity:1;}96%{opacity:.5;}100%{top:100vh;opacity:0;}}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9985;opacity:.6;}
+
+/* ===== NAV ===== */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,8,15,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Orbitron',monospace;font-weight:900;font-size:.85rem;color:var(--gold);text-decoration:none;display:flex;align-items:center;gap:10px;letter-spacing:.1em;}
+.nav-logo-icon{width:32px;height:32px;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;position:relative;animation:logopulse 3s ease-in-out infinite;flex-shrink:0;}
+.nav-logo-icon svg{width:18px;height:18px;}
+@keyframes logopulse{0%,100%{box-shadow:0 0 0 0 rgba(240,185,11,.3);}50%{box-shadow:0 0 0 6px rgba(240,185,11,0);}}
+.nav-links{display:flex;gap:24px;list-style:none;}
+.nav-links a{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.78rem;color:var(--muted);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;transition:color .3s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:var(--gold);transition:width .3s;}
+.nav-links a:hover{color:var(--gold);}
+.nav-links a:hover::after{width:100%;}
+.nav-cta{font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;letter-spacing:.12em;color:var(--dark);background:var(--gold);border:none;padding:8px 18px;text-decoration:none;transition:all .3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);white-space:nowrap;}
+.nav-cta:hover{background:#fff;transform:translateY(-1px);}
+/* Hamburger */
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;}
+.nav-hamburger span{display:block;width:22px;height:2px;background:var(--gold);transition:all .3s;}
+/* Mobile menu */
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:rgba(4,8,15,0.98);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:999;padding:20px 24px;flex-direction:column;gap:0;}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{display:block;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;padding:14px 0;border-bottom:1px solid var(--border);transition:color .3s;}
+.mobile-menu a:last-child{border-bottom:none;color:var(--gold);}
+.mobile-menu a:hover{color:var(--gold);}
+
+/* ===== TICKER ===== */
+.ticker-wrap{position:fixed;top:60px;left:0;right:0;z-index:999;background:rgba(4,8,15,.95);border-bottom:1px solid var(--border);overflow:hidden;height:34px;}
+.ticker-track{display:flex;align-items:center;height:100%;animation:tickscroll 30s linear infinite;white-space:nowrap;width:max-content;}
+.ticker-track:hover{animation-play-state:paused;}
+@keyframes tickscroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.ticker-item{display:inline-flex;align-items:center;gap:7px;padding:0 20px;font-family:'Share Tech Mono',monospace;font-size:.7rem;border-right:1px solid var(--border);}
+.ticker-sym{color:var(--gold);font-weight:700;}
+.ticker-price{color:var(--text);}
+.ticker-chg.up{color:var(--green);}
+.ticker-chg.dn{color:var(--red);}
+
+/* ===== WRAPPER ===== */
+.wrapper{position:relative;z-index:10;}
+
+/* ===== HERO ===== */
+.hero{min-height:100vh;padding:120px 24px 80px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;position:relative;overflow:hidden;}
+.hero-content{max-width:640px;position:relative;z-index:2;width:100%;}
+.hero-tag{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:20px;opacity:0;animation:fadeUp .8s .2s forwards;}
+.hero-tag::before{content:'';width:28px;height:1px;background:var(--gold);flex-shrink:0;}
+.hero-h1{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(2rem,8vw,4.8rem);line-height:1.05;color:#fff;margin-bottom:18px;opacity:0;animation:fadeUp .8s .4s forwards;}
+.hero-h1 .accent{color:var(--gold);position:relative;}
+.hero-h1 .accent::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),transparent);}
+.hero-sub{font-size:1rem;font-weight:300;color:var(--muted);line-height:1.75;max-width:500px;margin-bottom:40px;opacity:0;animation:fadeUp .8s .6s forwards;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;opacity:0;animation:fadeUp .8s .8s forwards;}
+.btn-gold{font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:.12em;color:var(--dark);background:var(--gold);border:none;padding:12px 26px;text-decoration:none;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all .3s;position:relative;overflow:hidden;display:inline-block;}
+.btn-gold::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.2);transform:translateX(-100%) skewX(-15deg);transition:transform .4s;}
+.btn-gold:hover::before{transform:translateX(200%) skewX(-15deg);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(240,185,11,.35);}
+.btn-outline{font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:.12em;color:var(--gold);background:transparent;border:1px solid var(--gold);padding:12px 26px;text-decoration:none;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all .3s;display:inline-block;}
+.btn-outline:hover{background:rgba(240,185,11,.08);transform:translateY(-2px);}
+
+/* Hero stats — inline on mobile, absolute on desktop */
+.hero-stats{display:flex;flex-direction:row;gap:12px;margin-top:40px;flex-wrap:wrap;opacity:0;animation:fadeUp .8s 1s forwards;}
+.stat-card{background:var(--panel);border:1px solid var(--border);padding:14px 18px;position:relative;overflow:hidden;flex:1;min-width:110px;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold);}
+.stat-label{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.stat-value{font-family:'Orbitron',monospace;font-weight:900;font-size:1.3rem;color:var(--gold);}
+.stat-badge{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--green);margin-top:3px;}
+
+/* ===== SECTION HEADER ===== */
+.sec-header{text-align:center;margin-bottom:48px;}
+.sec-eye{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;margin-bottom:12px;display:block;}
+.sec-title{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(1.5rem,5vw,2.6rem);color:#fff;}
+.sec-title span{color:var(--gold);}
+.sec-line{width:50px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:16px auto 0;}
+
+/* ===== GALAXY SECTION ===== */
+.section-galaxy{padding:80px 24px;position:relative;overflow:hidden;}
+.galaxy-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(240,185,11,.03) 0%,transparent 70%);pointer-events:none;}
+.orbit-arena{position:relative;width:320px;height:320px;margin:0 auto;}
+.orbit-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid rgba(240,185,11,0.1);transform:translate(-50%,-50%);animation:ringglow 3s ease-in-out infinite;}
+@keyframes ringglow{0%,100%{border-color:rgba(240,185,11,.07);}50%{border-color:rgba(240,185,11,.17);}}
+.ring1{width:90px;height:90px;}
+.ring2{width:148px;height:148px;animation-delay:.5s;}
+.ring3{width:206px;height:206px;animation-delay:1s;}
+.ring4{width:268px;height:268px;animation-delay:1.5s;}
+.ring5{width:316px;height:316px;animation-delay:.8s;border-style:dashed;}
+.orbit-sun{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:radial-gradient(circle,#f0b90b 0%,#c99a08 50%,rgba(240,185,11,.1) 80%,transparent 100%);box-shadow:0 0 24px rgba(240,185,11,.6),0 0 50px rgba(240,185,11,.3);display:flex;align-items:center;justify-content:center;z-index:10;animation:sunpulse 4s ease-in-out infinite;}
+@keyframes sunpulse{0%,100%{box-shadow:0 0 24px rgba(240,185,11,.6),0 0 50px rgba(240,185,11,.3);}50%{box-shadow:0 0 36px rgba(240,185,11,.9),0 0 80px rgba(240,185,11,.5);}}
+.orbit-sun svg{width:28px;height:28px;}
+.orbit-path{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;animation:orbitSpin linear infinite;}
+@keyframes orbitSpin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+.orbit-coin{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:coinCounter linear infinite;border:2px solid;}
+@keyframes coinCounter{from{transform:translateX(-50%) rotate(0deg);}to{transform:translateX(-50%) rotate(-360deg);}}
+.orbit-coin svg{width:22px;height:22px;}
+.orbit-coin.meme{width:26px;height:26px;top:-13px;}
+.orbit-coin.meme svg{width:16px;height:16px;}
+.orbit-coin .coin-tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(4,8,15,.9);border:1px solid var(--border2);padding:3px 8px;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--gold);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}
+.orbit-coin:hover .coin-tooltip{opacity:1;}
+.galaxy-note{text-align:center;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted);margin-top:28px;letter-spacing:.08em;}
+
+/* ===== LIVE PRICES ===== */
+.section-prices{padding:80px 24px 60px;}
+.prices-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.price-card{background:var(--panel);border:1px solid var(--border);padding:18px 16px;position:relative;overflow:hidden;transition:all .4s;}
+.price-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .4s;}
+.price-card:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.5);}
+.price-card:hover::before{opacity:1;}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.coin-logo{width:40px;height:40px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+.coin-logo svg{width:24px;height:24px;}
+.coin-logo.btc{background:rgba(247,147,26,.12);border-color:#f7931a;}
+.coin-logo.eth{background:rgba(98,126,234,.12);border-color:#627eea;}
+.coin-logo.bnb{background:rgba(240,185,11,.12);border-color:var(--gold);}
+.coin-logo.xrp{background:rgba(0,170,228,.12);border-color:#00aae4;}
+.coin-logo.sol{background:rgba(0,255,163,.12);border-color:#00ffa3;}
+.price-badge{font-family:'Share Tech Mono',monospace;font-size:.56rem;padding:3px 7px;border-radius:2px;}
+.price-badge.up{background:rgba(14,203,129,.1);color:var(--green);border:1px solid rgba(14,203,129,.2);}
+.price-badge.dn{background:rgba(246,70,93,.1);color:var(--red);border:1px solid rgba(246,70,93,.2);}
+.coin-name{font-family:'Orbitron',monospace;font-weight:700;font-size:.78rem;color:#fff;margin-bottom:2px;}
+.coin-pair{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--muted);}
+.coin-price{font-family:'Share Tech Mono',monospace;font-size:1.15rem;color:#fff;font-weight:700;margin:8px 0 4px;letter-spacing:-.01em;transition:color .2s;}
+.coin-chg{font-family:'Share Tech Mono',monospace;font-size:.68rem;}
+.coin-chg.up{color:var(--green);}
+.coin-chg.dn{color:var(--red);}
+.mini-chart{height:34px;margin-top:12px;}
+.mini-chart svg{width:100%;height:100%;}
+.api-status{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);text-align:center;margin-top:16px;letter-spacing:.07em;}
+.live-dot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:5px;animation:blink 1s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
+/* 5th card full width on 2-col grid */
+.price-card.full-w{grid-column:1 / -1;}
+
+/* ===== ABOUT ===== */
+.section-about{padding:80px 24px;}
+.about-grid{display:grid;grid-template-columns:1fr;gap:48px;}
+.about-visual{position:relative;height:300px;}
+.about-orb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(240,185,11,.12) 0%,transparent 70%);border:1px solid rgba(240,185,11,.18);animation:orbpulse 4s ease-in-out infinite;}
+@keyframes orbpulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6;}50%{transform:translate(-50%,-50%) scale(1.1);opacity:1;}}
+.about-orb::after{content:'';position:absolute;inset:-30px;border-radius:50%;border:1px dashed rgba(240,185,11,.05);animation:spinn 18s linear infinite;}
+@keyframes spinn{to{transform:rotate(360deg);}}
+.about-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:2;}
+.about-center .big{font-family:'Orbitron',monospace;font-size:3.5rem;font-weight:900;color:var(--gold);line-height:1;text-shadow:0 0 30px rgba(240,185,11,.45);}
+.about-center .sm{font-family:'Share Tech Mono',monospace;font-size:.5rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:4px;}
+.chips-wrap{position:absolute;inset:0;}
+.chip{position:absolute;background:var(--panel);border:1px solid var(--border);padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--gold);white-space:nowrap;animation:floatchip 6s ease-in-out infinite;}
+.chip:nth-child(1){top:8%;left:2%;animation-delay:0s;}
+.chip:nth-child(2){top:20%;right:4%;animation-delay:1s;}
+.chip:nth-child(3){bottom:28%;left:0%;animation-delay:2s;}
+.chip:nth-child(4){bottom:10%;right:4%;animation-delay:.5s;}
+.chip:nth-child(5){top:62%;left:5%;animation-delay:1.5s;}
+@keyframes floatchip{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.about-heading{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(1.4rem,5vw,2.2rem);color:#fff;line-height:1.2;margin-bottom:16px;}
+.about-heading span{color:var(--gold);}
+.about-desc{font-size:.95rem;font-weight:300;color:#8892a4;line-height:1.8;margin-bottom:28px;}
+.feature-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.feat-icon{width:32px;height:32px;background:rgba(240,185,11,.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0;}
+.feat-text strong{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:#fff;display:block;margin-bottom:2px;}
+.feat-text span{font-size:.8rem;color:var(--muted);font-weight:300;}
+
+/* ===== STRATEGIES ===== */
+.section-strategies{padding:80px 24px;background:linear-gradient(180deg,transparent,rgba(240,185,11,.015),transparent);}
+.strat-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:40px;}
+.strat-card{background:var(--panel);border:1px solid var(--border);padding:24px 22px;position:relative;overflow:hidden;transition:all .4s;}
+.strat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .4s;}
+.strat-card:hover::before{opacity:1;}
+.strat-card:hover{transform:translateY(-4px);border-color:rgba(240,185,11,.28);box-shadow:0 20px 40px rgba(0,0,0,.4);}
+.strat-num{font-family:'Orbitron',monospace;font-size:.56rem;color:var(--gold);opacity:.35;letter-spacing:.12em;margin-bottom:14px;}
+.strat-ico{width:44px;height:44px;background:rgba(240,185,11,.05);border:1px solid rgba(240,185,11,.14);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:16px;transition:all .3s;}
+.strat-card:hover .strat-ico{background:rgba(240,185,11,.1);border-color:rgba(240,185,11,.32);}
+.strat-title{font-family:'Orbitron',monospace;font-weight:700;font-size:.82rem;color:#fff;margin-bottom:8px;letter-spacing:.04em;}
+.strat-desc{font-size:.85rem;font-weight:300;color:var(--muted);line-height:1.65;}
+.strat-tag{display:inline-block;margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--gold);border:1px solid rgba(240,185,11,.18);padding:3px 8px;letter-spacing:.08em;}
+
+/* ===== CONNECT ===== */
+.section-connect{padding:80px 24px;}
+.connect-box{position:relative;overflow:hidden;border:1px solid var(--border2);background:var(--panel);padding:48px 24px;text-align:center;}
+.connect-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(240,185,11,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(240,185,11,.04) 1px,transparent 1px);background-size:36px 36px;animation:gridmove 8s linear infinite;pointer-events:none;}
+@keyframes gridmove{0%{background-position:0 0;}100%{background-position:36px 36px;}}
+.connect-box::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:240px;height:240px;background:radial-gradient(circle,rgba(240,185,11,.07) 0%,transparent 70%);pointer-events:none;}
+.c-particle{position:absolute;border-radius:50%;background:rgba(240,185,11,.2);pointer-events:none;animation:cpart linear infinite;}
+@keyframes cpart{0%{transform:translateY(100%);opacity:0;}20%{opacity:1;}80%{opacity:1;}100%{transform:translateY(-120%);opacity:0;}}
+.connect-title{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(1.4rem,5vw,2.4rem);color:#fff;margin:12px 0;position:relative;z-index:2;}
+.connect-title span{color:var(--gold);}
+.connect-desc{font-size:.92rem;font-weight:300;color:var(--muted);max-width:440px;margin:0 auto 40px;line-height:1.75;position:relative;z-index:2;}
+.socials{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;position:relative;z-index:2;}
+.soc-btn{display:flex;align-items:center;gap:10px;padding:14px 20px;border:1px solid;color:#fff;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;letter-spacing:.06em;transition:all .35s;position:relative;overflow:hidden;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);flex:1;min-width:160px;max-width:240px;}
+.soc-btn::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s;}
+.soc-btn:hover::before{opacity:1;}
+.soc-btn:hover{transform:translateY(-3px) scale(1.02);}
+.soc-tg{border-color:rgba(0,136,204,.4);}
+.soc-tg::before{background:linear-gradient(135deg,rgba(0,136,204,.2),rgba(0,136,204,.05));}
+.soc-tg:hover{box-shadow:0 10px 28px rgba(0,136,204,.3);}
+.soc-tw{border-color:rgba(255,255,255,.2);}
+.soc-tw::before{background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.02));}
+.soc-tw:hover{box-shadow:0 10px 28px rgba(255,255,255,.12);}
+.soc-dc{border-color:rgba(114,137,218,.4);}
+.soc-dc::before{background:linear-gradient(135deg,rgba(114,137,218,.2),rgba(114,137,218,.05));}
+.soc-dc:hover{box-shadow:0 10px 28px rgba(114,137,218,.3);}
+.soc-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.soc-tg .soc-icon{background:rgba(0,136,204,.2);}
+.soc-tw .soc-icon{background:rgba(255,255,255,.1);}
+.soc-dc .soc-icon{background:rgba(114,137,218,.2);}
+.soc-icon svg{width:18px;height:18px;}
+.soc-info{text-align:left;}
+.soc-info strong{display:block;font-weight:700;font-size:.88rem;letter-spacing:.05em;}
+.soc-info span{font-size:.7rem;color:var(--muted);font-weight:400;}
+
+/* ===== FOOTER ===== */
+footer{border-top:1px solid var(--border);padding:24px;display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;}
+.foot-logo{font-family:'Orbitron',monospace;font-weight:900;font-size:.82rem;color:var(--gold);letter-spacing:.14em;}
+.foot-copy{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--muted);}
+.foot-disc{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#2d3344;line-height:1.5;}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(32px);transition:all .8s cubic-bezier(.16,1,.3,1);}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.rd1{transition-delay:.08s;}.rd2{transition-delay:.16s;}.rd3{transition-delay:.24s;}.rd4{transition-delay:.32s;}.rd5{transition-delay:.4s;}
+
+/* ===========================
+   TABLET (640px+)
+=========================== */
+@media(min-width:640px){
+  nav{padding:0 32px;}
+  .hero{padding:130px 40px 80px;}
+  .section-galaxy,.section-prices,.section-about,.section-strategies,.section-connect{padding-left:40px;padding-right:40px;}
+  footer{padding:24px 40px;}
+  .prices-grid{grid-template-columns:repeat(3,1fr);}
+  .price-card.full-w{grid-column:auto;}
+  .strat-grid{grid-template-columns:repeat(2,1fr);}
+  .about-grid{grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+  .about-visual{height:380px;}
+  .orbit-arena{width:440px;height:440px;}
+  .ring1{width:120px;height:120px;}
+  .ring2{width:196px;height:196px;}
+  .ring3{width:272px;height:272px;}
+  .ring4{width:360px;height:360px;}
+  .ring5{width:436px;height:436px;}
+  .orbit-sun{width:68px;height:68px;}
+  .orbit-sun svg{width:36px;height:36px;}
+  .orbit-coin{width:40px;height:40px;top:-20px;}
+  .orbit-coin.meme{width:30px;height:30px;top:-15px;}
+  .socials{flex-wrap:nowrap;}
+  .soc-btn{flex:auto;min-width:auto;}
+  footer{flex-direction:row;justify-content:space-between;text-align:left;padding:24px 40px;}
+}
+
+/* ===========================
+   DESKTOP (1024px+)
+=========================== */
+@media(min-width:1024px){
+  nav{padding:0 48px;height:68px;}
+  .ticker-wrap{top:68px;}
+  .hero{padding:160px 80px 80px;flex-direction:row;align-items:center;min-height:100vh;}
+  .hero-content{max-width:580px;}
+  .hero-stats{flex-direction:column;position:absolute;right:80px;top:50%;transform:translateY(-50%);margin-top:0;animation:fadeLeft .8s 1s forwards;}
+  .stat-card{min-width:180px;}
+  .nav-hamburger{display:none !important;}
+  .nav-links{display:flex !important;}
+  .nav-cta{display:inline-block !important;}
+  .section-galaxy,.section-prices,.section-about,.section-strategies,.section-connect{padding-left:80px;padding-right:80px;}
+  footer{padding:28px 80px;}
+  .orbit-arena{width:620px;height:620px;}
+  .ring1{width:170px;height:170px;}
+  .ring2{width:280px;height:280px;}
+  .ring3{width:390px;height:390px;}
+  .ring4{width:510px;height:510px;}
+  .ring5{width:616px;height:616px;}
+  .orbit-sun{width:88px;height:88px;}
+  .orbit-sun svg{width:44px;height:44px;}
+  .orbit-coin{width:44px;height:44px;top:-22px;}
+  .orbit-coin svg{width:26px;height:26px;}
+  .orbit-coin.meme{width:34px;height:34px;top:-17px;}
+  .orbit-coin.meme svg{width:20px;height:20px;}
+  .prices-grid{grid-template-columns:repeat(5,1fr);}
+  .strat-grid{grid-template-columns:repeat(3,1fr);}
+  .about-grid{grid-template-columns:1fr 1fr;}
+  .about-visual{height:460px;}
+  .about-orb{width:240px;height:240px;}
+  .connect-box{padding:70px 60px;}
+  .section-galaxy{padding-top:100px;padding-bottom:100px;}
+  .section-prices{padding-top:100px;padding-bottom:100px;}
+  .section-about{padding-top:100px;padding-bottom:100px;}
+  .section-strategies{padding-top:100px;padding-bottom:100px;}
+  .section-connect{padding-top:100px;padding-bottom:100px;}
+}
+
+/* ===========================
+   MOBILE NAV (max 1023px)
+=========================== */
+@media(max-width:1023px){
+  .nav-links{display:none !important;}
+  .nav-cta{display:none !important;}
+  .nav-hamburger{display:flex !important;}
+  .hero-stats{position:static;transform:none;animation:fadeUp .8s 1s forwards;}
+}
+
+@keyframes fadeLeft{from{opacity:0;transform:translateX(24px) translateY(-50%);}to{opacity:1;transform:translateX(0) translateY(-50%);}}
 </style>
 </head>
 <body>
-
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursor-ring"></div>
 <div class="scanline"></div>
-
 <canvas id="bg-canvas"></canvas>
 <div class="grid-overlay"></div>
 
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">
-    <div class="logo-icon">CO</div>
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="4" height="10" fill="#f0b90b"/><rect x="6.5" y="4" width="1" height="4" fill="#f0b90b"/><rect x="6.5" y="18" width="1" height="3" fill="#f0b90b"/><rect x="15" y="5" width="4" height="13" fill="#f0b90b"/><rect x="16.5" y="2" width="1" height="3" fill="#f0b90b"/><rect x="16.5" y="18" width="1" height="4" fill="#f0b90b"/></svg>
+    </div>
     CRYPTO ORATOR
   </a>
   <ul class="nav-links">
+    <li><a href="#galaxy">Universe</a></li>
     <li><a href="#prices">Live Prices</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#strategies">Strategies</a></li>
     <li><a href="#connect">Connect</a></li>
   </ul>
   <a href="#connect" class="nav-cta">GET IN TOUCH</a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#galaxy" onclick="closeMMenu()">🌌 Crypto Universe</a>
+  <a href="#prices" onclick="closeMMenu()">📊 Live Prices</a>
+  <a href="#about" onclick="closeMMenu()">👤 About</a>
+  <a href="#strategies" onclick="closeMMenu()">📈 Strategies</a>
+  <a href="#connect" onclick="closeMMenu()">✉ Connect</a>
+</div>
 
 <!-- TICKER -->
 <div class="ticker-wrap">
-  <div class="ticker-track" id="ticker-track">
-    <!-- Filled by JS -->
-  </div>
+  <div class="ticker-track" id="ticker-track"></div>
 </div>
 
-<!-- MAIN WRAPPER -->
 <div class="wrapper">
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-content">
-      <div class="hero-tag">
-        CRYPTO RESEARCH & TRADING EDUCATION
-      </div>
-      <h1 class="hero-title">
-        THE <span>VOICE</span><br>OF THE<br>MARKET
-      </h1>
-      <p class="hero-sub">
-        Deep crypto research, advanced trading strategies, and market analysis — no noise, no hype. Just data-driven insight from a dedicated market student.
-      </p>
-      <div class="hero-btns">
-        <a href="#strategies" class="btn-primary">EXPLORE STRATEGIES</a>
-        <a href="#connect" class="btn-outline">JOIN COMMUNITY</a>
-      </div>
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-content">
+    <div class="hero-tag">CRYPTO RESEARCH &amp; TRADING EDUCATION</div>
+    <h1 class="hero-h1">THE <span class="accent">VOICE</span><br>OF THE<br>MARKET</h1>
+    <p class="hero-sub">Deep crypto research, advanced trading strategies, and market analysis — no noise, no hype. Data-driven insight from a dedicated market student.</p>
+    <div class="hero-btns">
+      <a href="#strategies" class="btn-gold">EXPLORE STRATEGIES</a>
+      <a href="#connect" class="btn-outline">JOIN COMMUNITY</a>
     </div>
-
     <div class="hero-stats">
-      <div class="stat-card">
-        <div class="stat-label">FOCUS ASSETS</div>
-        <div class="stat-value">5+</div>
-        <div class="stat-badge">▲ BTC ETH BNB XRP SOL</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">RESEARCH MODE</div>
-        <div class="stat-value">24/7</div>
-        <div class="stat-badge">● ALWAYS ACTIVE</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">SIGNAL SERVICE</div>
-        <div class="stat-value">FREE</div>
-        <div class="stat-badge">◆ EDUCATION ONLY</div>
-      </div>
+      <div class="stat-card"><div class="stat-label">FOCUS ASSETS</div><div class="stat-value">10+</div><div class="stat-badge">▲ BTC ETH BNB XRP SOL</div></div>
+      <div class="stat-card"><div class="stat-label">RESEARCH MODE</div><div class="stat-value">24/7</div><div class="stat-badge">● ALWAYS ACTIVE</div></div>
+      <div class="stat-card"><div class="stat-label">SIGNAL SERVICE</div><div class="stat-value">FREE</div><div class="stat-badge">◆ EDUCATION ONLY</div></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- LIVE PRICES -->
-  <section class="section-prices" id="prices">
-    <div class="section-header reveal">
-      <span class="section-eyebrow"><span class="live-dot"></span>LIVE MARKET DATA</span>
-      <h2 class="section-title">REAL-TIME <span>PRICES</span></h2>
-      <div class="section-line"></div>
+<!-- ===== GALAXY ===== -->
+<section class="section-galaxy" id="galaxy">
+  <div class="galaxy-bg"></div>
+  <div class="sec-header reveal">
+    <span class="sec-eye">✦ CRYPTO UNIVERSE</span>
+    <h2 class="sec-title">THE <span>GALAXY</span> OF COINS</h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="orbit-arena reveal">
+    <div class="orbit-ring ring1"></div>
+    <div class="orbit-ring ring2"></div>
+    <div class="orbit-ring ring3"></div>
+    <div class="orbit-ring ring4"></div>
+    <div class="orbit-ring ring5"></div>
+    <!-- BTC Sun -->
+    <div class="orbit-sun"><svg viewBox="0 0 32 32"><path fill="#1a0900" d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm3.914 13.178c.292-1.956-1.196-3.008-3.232-3.71l.66-2.647-1.611-.402-.643 2.577c-.424-.106-.859-.205-1.292-.304l.648-2.597-1.61-.401-.661 2.647c-.351-.08-.696-.159-1.031-.243l.002-.009-2.222-.555-.429 1.72s1.196.274 1.171.291c.653.163.771.595.751.937l-.753 3.02.167.052-.17-.042-1.056 4.233c-.08.199-.283.498-.74.384l-1.171-.293-.8 1.842 2.097.523c.39.098.773.2 1.15.297l-.668 2.68 1.609.401.661-2.649c.44.119.867.229 1.285.333l-.659 2.639 1.611.401.668-2.675c2.753.521 4.824.311 5.694-2.18.702-2.003-.035-3.158-1.482-3.912 1.054-.243 1.848-.936 2.06-2.368zm-3.686 5.17c-.499 2.003-3.878.92-4.972.648l.887-3.555c1.094.273 4.603.814 4.085 2.907zm.499-5.196c-.455 1.822-3.264.896-4.176.669l.804-3.224c.912.227 3.848.651 3.372 2.555z"/></svg></div>
+    <!-- ETH orbit 1 -->
+    <div class="orbit-path" style="width:var(--r1,90px);height:var(--r1,90px);animation-duration:12s;">
+      <div class="orbit-coin" style="border-color:#627eea;background:rgba(98,126,234,.15);"><svg viewBox="0 0 32 32"><g fill="none"><circle cx="16" cy="16" r="16" fill="#627eea"/><g fill="#fff"><path fill-opacity=".602" d="M16.498 4v8.87l7.497 3.35z"/><path d="M16.498 4L9 16.22l7.498-3.35z"/><path fill-opacity=".602" d="M16.498 21.968v6.027L24 17.616z"/><path d="M16.498 27.995v-6.028L9 17.616z"/><path fill-opacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.348z"/><path fill-opacity=".602" d="M9 16.22l7.498 4.353v-7.701z"/></g></g></svg><div class="coin-tooltip">ETH</div></div>
+    </div>
+    <!-- BNB orbit 2 -->
+    <div class="orbit-path" style="width:var(--r2,148px);height:var(--r2,148px);animation-duration:18s;animation-direction:reverse;">
+      <div class="orbit-coin" style="border-color:#f0b90b;background:rgba(240,185,11,.15);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#f0b90b"/><path fill="#fff" d="M12.116 14.404L16 10.52l3.886 3.886 2.26-2.26L16 6l-6.144 6.144 2.26 2.26zM6 16l2.26-2.26L10.52 16l-2.26 2.26L6 16zm6.116 1.596L16 21.48l3.886-3.886 2.26 2.259L16 26l-6.144-6.144 2.262-2.258zM21.48 16l2.26-2.26L26 16l-2.26 2.26L21.48 16zm-3.188-.002L16 13.706l-1.71 1.71-.604.604L16 18.294l2.294-2.294z"/></svg><div class="coin-tooltip">BNB</div></div>
+    </div>
+    <!-- SOL orbit 3 -->
+    <div class="orbit-path" style="width:var(--r3,206px);height:var(--r3,206px);animation-duration:24s;">
+      <div class="orbit-coin" style="border-color:#00ffa3;background:rgba(0,255,163,.12);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#1a1a2e"/><g fill="url(#sg1)"><path d="M9.5 20.5h13l-2.5 2.5H7l2.5-2.5zm13-9H9.5L7 9h13l2.5 2.5zm0 4.5H9.5l-2.5 2.5h13l2.5-2.5z"/></g><defs><linearGradient id="sg1" x1="7" y1="16" x2="22.5" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#9945ff"/><stop offset="1" stop-color="#00ffa3"/></linearGradient></defs></svg><div class="coin-tooltip">SOL</div></div>
+    </div>
+    <!-- XRP orbit 3 offset -->
+    <div class="orbit-path" style="width:var(--r3,206px);height:var(--r3,206px);animation-duration:24s;animation-delay:-12s;">
+      <div class="orbit-coin" style="border-color:#00aae4;background:rgba(0,170,228,.12);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#00aae4"/><path fill="#fff" d="M23 8h2.72l-6.26 6.26a4.96 4.96 0 01-7.02 0L6.28 8H9l4.86 4.86a3.2 3.2 0 004.52 0L23 8zm-13.72 16H6.56l6.3-6.3a4.96 4.96 0 017.02 0L26.2 24H23.5l-4.9-4.9a3.2 3.2 0 00-4.52 0L9.28 24z"/></svg><div class="coin-tooltip">XRP</div></div>
+    </div>
+    <!-- Meme orbit 4 -->
+    <div class="orbit-path" style="width:var(--r4,268px);height:var(--r4,268px);animation-duration:30s;animation-direction:reverse;">
+      <div class="orbit-coin meme" style="border-color:#c2a633;background:rgba(194,166,51,.15);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#c2a633"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="13" fill="#fff">Ð</text></svg><div class="coin-tooltip">DOGE</div></div>
+    </div>
+    <div class="orbit-path" style="width:var(--r4,268px);height:var(--r4,268px);animation-duration:30s;animation-delay:-10s;animation-direction:reverse;">
+      <div class="orbit-coin meme" style="border-color:#e05d0f;background:rgba(224,93,15,.15);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#e05d0f"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="8" fill="#fff">SHIB</text></svg><div class="coin-tooltip">SHIB</div></div>
+    </div>
+    <div class="orbit-path" style="width:var(--r4,268px);height:var(--r4,268px);animation-duration:30s;animation-delay:-20s;animation-direction:reverse;">
+      <div class="orbit-coin meme" style="border-color:#3cb371;background:rgba(60,179,113,.15);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#3cb371"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="8" fill="#fff">PEPE</text></svg><div class="coin-tooltip">PEPE</div></div>
+    </div>
+    <!-- Orbit 5 -->
+    <div class="orbit-path" style="width:var(--r5,316px);height:var(--r5,316px);animation-duration:38s;">
+      <div class="orbit-coin meme" style="border-color:#a855f7;background:rgba(168,85,247,.15);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#a855f7"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="9" fill="#fff">WIF</text></svg><div class="coin-tooltip">WIF</div></div>
+    </div>
+    <div class="orbit-path" style="width:var(--r5,316px);height:var(--r5,316px);animation-duration:38s;animation-delay:-10s;">
+      <div class="orbit-coin meme" style="border-color:#f97316;background:rgba(249,115,22,.15);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#f97316"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="7" fill="#fff">BONK</text></svg><div class="coin-tooltip">BONK</div></div>
+    </div>
+    <div class="orbit-path" style="width:var(--r5,316px);height:var(--r5,316px);animation-duration:38s;animation-delay:-22s;">
+      <div class="orbit-coin meme" style="border-color:#f59e0b;background:rgba(245,158,11,.15);"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#f59e0b"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="7" fill="#fff">FLOKI</text></svg><div class="coin-tooltip">FLOKI</div></div>
+    </div>
+  </div>
+  <p class="galaxy-note">✦ BTC at the core · Major coins in close orbit · Memecoins in the outer galaxy</p>
+</section>
+
+<!-- ===== LIVE PRICES ===== -->
+<section class="section-prices" id="prices">
+  <div class="sec-header reveal">
+    <span class="sec-eye"><span class="live-dot"></span>LIVE MARKET DATA</span>
+    <h2 class="sec-title">REAL-TIME <span>PRICES</span></h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="prices-grid">
+
+    <div class="price-card reveal rd1">
+      <div class="pc-top">
+        <div class="coin-logo btc"><svg viewBox="0 0 32 32"><path fill="#f7931a" d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm3.914 13.178c.292-1.956-1.196-3.008-3.232-3.71l.66-2.647-1.611-.402-.643 2.577c-.424-.106-.859-.205-1.292-.304l.648-2.597-1.61-.401-.661 2.647c-.351-.08-.696-.159-1.031-.243l.002-.009-2.222-.555-.429 1.72 1.171.291c.653.163.771.595.751.937l-.753 3.02.167.052-.17-.042-1.056 4.233c-.08.199-.283.498-.74.384l-1.171-.293-.8 1.842 2.097.523c.39.098.773.2 1.15.297l-.668 2.68 1.609.401.661-2.649c.44.119.867.229 1.285.333l-.659 2.639 1.611.401.668-2.675c2.753.521 4.824.311 5.694-2.18.702-2.003-.035-3.158-1.482-3.912 1.054-.243 1.848-.936 2.06-2.368zm-3.686 5.17c-.499 2.003-3.878.92-4.972.648l.887-3.555c1.094.273 4.603.814 4.085 2.907zm.499-5.196c-.455 1.822-3.264.896-4.176.669l.804-3.224c.912.227 3.848.651 3.372 2.555z"/></svg></div>
+        <span class="price-badge up" id="badge-btc">+0.00%</span>
+      </div>
+      <div class="coin-name">BITCOIN</div><div class="coin-pair">BTC / USDT</div>
+      <div class="coin-price" id="price-btc">$--,---</div>
+      <div class="coin-chg up" id="change-btc">▲ Loading...</div>
+      <div class="mini-chart" id="chart-btc"></div>
     </div>
 
-    <div class="prices-grid">
-      <div class="price-card reveal reveal-delay-1" id="card-btc">
-        <div class="price-card-top">
-          <div class="crypto-icon btc">
-            <!-- Bitcoin SVG -->
-            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path fill="#f7931a" d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm3.914 13.178c.292-1.956-1.196-3.008-3.232-3.71l.66-2.647-1.611-.402-.643 2.577c-.424-.106-.859-.205-1.292-.304l.648-2.597-1.61-.401-.661 2.647c-.351-.08-.696-.159-1.031-.243l.002-.009-2.222-.555-.429 1.72s1.196.274 1.171.291c.653.163.771.595.751 .937l-.753 3.02c.045.011.103.027.167.052l-.17-.042-1.056 4.233c-.08.199-.283.498-.74.384.016.023-1.171-.293-1.171-.293l-.8 1.842 2.097.523c.39.098.773.2 1.15.297l-.668 2.68 1.609.401.661-2.649c.44.119.867.229 1.285.333l-.659 2.639 1.611.401.668-2.675c2.753.521 4.824.311 5.694-2.18.702-2.003-.035-3.158-1.482-3.912 1.054-.243 1.848-.936 2.06-2.368zm-3.686 5.17c-.499 2.003-3.878.92-4.972.648l.887-3.555c1.094.273 4.603.814 4.085 2.907zm.499-5.196c-.455 1.822-3.264.896-4.176.669l.804-3.224c.912.227 3.848.651 3.372 2.555z"/></svg>
-          </div>
-          <span class="price-badge up" id="badge-btc">+0.00%</span>
-        </div>
-        <div class="crypto-name">BITCOIN</div>
-        <div class="crypto-full">BTC / USDT</div>
-        <div class="crypto-price" id="price-btc">$--,---</div>
-        <div class="crypto-change up" id="change-btc">▲ Loading...</div>
-        <div class="mini-chart" id="chart-btc"></div>
+    <div class="price-card reveal rd2">
+      <div class="pc-top">
+        <div class="coin-logo eth"><svg viewBox="0 0 32 32"><g fill="none"><circle cx="16" cy="16" r="16" fill="#627eea"/><g fill="#fff"><path fill-opacity=".602" d="M16.498 4v8.87l7.497 3.35z"/><path d="M16.498 4L9 16.22l7.498-3.35z"/><path fill-opacity=".602" d="M16.498 21.968v6.027L24 17.616z"/><path d="M16.498 27.995v-6.028L9 17.616z"/><path fill-opacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.348z"/><path fill-opacity=".602" d="M9 16.22l7.498 4.353v-7.701z"/></g></g></svg></div>
+        <span class="price-badge up" id="badge-eth">+0.00%</span>
       </div>
-
-      <div class="price-card reveal reveal-delay-2" id="card-eth">
-        <div class="price-card-top">
-          <div class="crypto-icon eth">
-            <!-- Ethereum SVG -->
-            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g fill="none"><circle cx="16" cy="16" r="16" fill="#627eea"/><g fill="#fff"><path fill-opacity=".602" d="M16.498 4v8.87l7.497 3.35z"/><path d="M16.498 4L9 16.22l7.498-3.35z"/><path fill-opacity=".602" d="M16.498 21.968v6.027L24 17.616z"/><path d="M16.498 27.995v-6.028L9 17.616z"/><path fill-opacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.348z"/><path fill-opacity=".602" d="M9 16.22l7.498 4.353v-7.701z"/></g></g></svg>
-          </div>
-          <span class="price-badge up" id="badge-eth">+0.00%</span>
-        </div>
-        <div class="crypto-name">ETHEREUM</div>
-        <div class="crypto-full">ETH / USDT</div>
-        <div class="crypto-price" id="price-eth">$--,---</div>
-        <div class="crypto-change up" id="change-eth">▲ Loading...</div>
-        <div class="mini-chart" id="chart-eth"></div>
-      </div>
-
-      <div class="price-card reveal reveal-delay-3" id="card-bnb">
-        <div class="price-card-top">
-          <div class="crypto-icon bnb">
-            <!-- BNB SVG -->
-            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#f0b90b"/><path fill="#fff" d="M12.116 14.404L16 10.52l3.886 3.886 2.26-2.26L16 6l-6.144 6.144 2.26 2.26zM6 16l2.26-2.26L10.52 16l-2.26 2.26L6 16zm6.116 1.596L16 21.48l3.886-3.886 2.26 2.259L16 26l-6.144-6.144-.002-.002 2.262-2.258zM21.48 16l2.26-2.26L26 16l-2.26 2.26L21.48 16zm-3.188-.002h.002L16 13.706l-1.71 1.71-.196.196-.408.408.002.002L16 18.294l2.294-2.294-.002-.002z"/></svg>
-          </div>
-          <span class="price-badge up" id="badge-bnb">+0.00%</span>
-        </div>
-        <div class="crypto-name">BNB</div>
-        <div class="crypto-full">BNB / USDT</div>
-        <div class="crypto-price" id="price-bnb">$---</div>
-        <div class="crypto-change up" id="change-bnb">▲ Loading...</div>
-        <div class="mini-chart" id="chart-bnb"></div>
-      </div>
-
-      <div class="price-card reveal reveal-delay-4" id="card-xrp">
-        <div class="price-card-top">
-          <div class="crypto-icon xrp">
-            <!-- XRP SVG -->
-            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#00aae4"/><path fill="#fff" d="M23 8h2.72l-6.26 6.26a4.96 4.96 0 01-7.02 0L6.28 8H9l4.86 4.86a3.2 3.2 0 004.52 0L23 8zm-13.72 16H6.56l6.3-6.3a4.96 4.96 0 017.02 0L26.2 24H23.5l-4.9-4.9a3.2 3.2 0 00-4.52 0L9.28 24z"/></svg>
-          </div>
-          <span class="price-badge up" id="badge-xrp">+0.00%</span>
-        </div>
-        <div class="crypto-name">XRP</div>
-        <div class="crypto-full">XRP / USDT</div>
-        <div class="crypto-price" id="price-xrp">$-.--</div>
-        <div class="crypto-change up" id="change-xrp">▲ Loading...</div>
-        <div class="mini-chart" id="chart-xrp"></div>
-      </div>
-
-      <div class="price-card reveal reveal-delay-5" id="card-sol">
-        <div class="price-card-top">
-          <div class="crypto-icon sol">
-            <!-- Solana SVG -->
-            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#1a1a2e"/><g fill="url(#sg)"><path d="M9.5 20.5h13l-2.5 2.5H7l2.5-2.5zm13-9H9.5L7 9h13l2.5 2.5zm0 4.5H9.5l-2.5 2.5h13l2.5-2.5z"/></g><defs><linearGradient id="sg" x1="7" y1="16" x2="22.5" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#9945ff"/><stop offset="1" stop-color="#00ffa3"/></linearGradient></defs></svg>
-          </div>
-          <span class="price-badge up" id="badge-sol">+0.00%</span>
-        </div>
-        <div class="crypto-name">SOLANA</div>
-        <div class="crypto-full">SOL / USDT</div>
-        <div class="crypto-price" id="price-sol">$---</div>
-        <div class="crypto-change up" id="change-sol">▲ Loading...</div>
-        <div class="mini-chart" id="chart-sol"></div>
-      </div>
+      <div class="coin-name">ETHEREUM</div><div class="coin-pair">ETH / USDT</div>
+      <div class="coin-price" id="price-eth">$--,---</div>
+      <div class="coin-chg up" id="change-eth">▲ Loading...</div>
+      <div class="mini-chart" id="chart-eth"></div>
     </div>
-    <div class="api-status" id="api-status">Connecting to market data...</div>
-  </section>
 
-  <!-- ABOUT -->
-  <section class="section-about" id="about">
+    <div class="price-card reveal rd3">
+      <div class="pc-top">
+        <div class="coin-logo bnb"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#f0b90b"/><path fill="#fff" d="M12.116 14.404L16 10.52l3.886 3.886 2.26-2.26L16 6l-6.144 6.144 2.26 2.26zM6 16l2.26-2.26L10.52 16l-2.26 2.26L6 16zm6.116 1.596L16 21.48l3.886-3.886 2.26 2.259L16 26l-6.144-6.144 2.262-2.258zM21.48 16l2.26-2.26L26 16l-2.26 2.26L21.48 16zm-3.188-.002L16 13.706l-2.314 2.292L16 18.294l2.294-2.294z"/></svg></div>
+        <span class="price-badge up" id="badge-bnb">+0.00%</span>
+      </div>
+      <div class="coin-name">BNB</div><div class="coin-pair">BNB / USDT</div>
+      <div class="coin-price" id="price-bnb">$---</div>
+      <div class="coin-chg up" id="change-bnb">▲ Loading...</div>
+      <div class="mini-chart" id="chart-bnb"></div>
+    </div>
+
+    <div class="price-card reveal rd4">
+      <div class="pc-top">
+        <div class="coin-logo xrp"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#00aae4"/><path fill="#fff" d="M23 8h2.72l-6.26 6.26a4.96 4.96 0 01-7.02 0L6.28 8H9l4.86 4.86a3.2 3.2 0 004.52 0L23 8zm-13.72 16H6.56l6.3-6.3a4.96 4.96 0 017.02 0L26.2 24H23.5l-4.9-4.9a3.2 3.2 0 00-4.52 0L9.28 24z"/></svg></div>
+        <span class="price-badge up" id="badge-xrp">+0.00%</span>
+      </div>
+      <div class="coin-name">XRP</div><div class="coin-pair">XRP / USDT</div>
+      <div class="coin-price" id="price-xrp">$-.--</div>
+      <div class="coin-chg up" id="change-xrp">▲ Loading...</div>
+      <div class="mini-chart" id="chart-xrp"></div>
+    </div>
+
+    <div class="price-card reveal rd5 full-w">
+      <div class="pc-top">
+        <div class="coin-logo sol"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#1a1a2e"/><g fill="url(#sg2)"><path d="M9.5 20.5h13l-2.5 2.5H7l2.5-2.5zm13-9H9.5L7 9h13l2.5 2.5zm0 4.5H9.5l-2.5 2.5h13l2.5-2.5z"/></g><defs><linearGradient id="sg2" x1="7" y1="16" x2="22.5" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#9945ff"/><stop offset="1" stop-color="#00ffa3"/></linearGradient></defs></svg></div>
+        <span class="price-badge up" id="badge-sol">+0.00%</span>
+      </div>
+      <div class="coin-name">SOLANA</div><div class="coin-pair">SOL / USDT</div>
+      <div class="coin-price" id="price-sol">$---</div>
+      <div class="coin-chg up" id="change-sol">▲ Loading...</div>
+      <div class="mini-chart" id="chart-sol"></div>
+    </div>
+
+  </div>
+  <div class="api-status" id="api-status">Connecting to Binance stream...</div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="section-about" id="about">
+  <div class="about-grid">
     <div class="about-visual reveal">
       <div class="about-orb"></div>
-      <div class="about-center-text">
-        <div class="big-letter">CO</div>
-        <div class="small-label">CRYPTO ORATOR</div>
-      </div>
-      <div class="floating-chips">
+      <div class="about-center"><div class="big">CO</div><div class="sm">CRYPTO ORATOR</div></div>
+      <div class="chips-wrap">
         <div class="chip">◆ MARKET ANALYSIS</div>
         <div class="chip">◆ RISK MANAGEMENT</div>
         <div class="chip">◆ CHART PATTERNS</div>
@@ -1239,434 +527,167 @@
         <div class="chip">◆ DeFi RESEARCH</div>
       </div>
     </div>
-
-    <div class="about-text reveal">
-      <span class="section-eyebrow">WHO IS CRYPTO ORATOR</span>
-      <h2 class="about-heading">
-        RESEARCH-DRIVEN.<br>
-        <span>STRATEGY-FOCUSED.</span><br>
-        NO SIGNAL HYPE.
-      </h2>
-      <p class="about-desc">
-        Crypto Orator is dedicated to deep research in cryptocurrency markets. The mission is simple — decode market structure, build tested trading strategies, and share knowledge freely. No paid signals, no pump groups — just pure market education.
-      </p>
-      <div class="about-features">
-        <div class="feature-row">
-          <div class="feature-icon">📊</div>
-          <div class="feature-text">
-            <strong>Technical Analysis & Strategy Development</strong>
-            <span>Building and backtesting new trading strategies across multiple timeframes and market conditions.</span>
-          </div>
-        </div>
-        <div class="feature-row">
-          <div class="feature-icon">🔬</div>
-          <div class="feature-text">
-            <strong>Crypto Market Research</strong>
-            <span>Deep-dive research into tokenomics, on-chain metrics, and macro market trends.</span>
-          </div>
-        </div>
-        <div class="feature-row">
-          <div class="feature-icon">🎓</div>
-          <div class="feature-text">
-            <strong>Free Education — No Gatekeeping</strong>
-            <span>Anyone can reach out to learn about crypto trading. Knowledge is shared openly.</span>
-          </div>
-        </div>
-      </div>
-      <a href="#connect" class="btn-primary">REACH OUT TO LEARN</a>
+    <div class="reveal">
+      <span class="sec-eye" style="text-align:left;display:block;">WHO IS CRYPTO ORATOR</span>
+      <h2 class="about-heading">RESEARCH-DRIVEN.<br><span>STRATEGY-FOCUSED.</span><br>NO SIGNAL HYPE.</h2>
+      <p class="about-desc">Crypto Orator is dedicated to deep research in cryptocurrency markets. The mission is simple — decode market structure, build tested trading strategies, and share knowledge freely. No paid signals, no pump groups — just pure market education.</p>
+      <div class="feature-row"><div class="feat-icon">📊</div><div class="feat-text"><strong>Technical Analysis & Strategy Development</strong><span>Building and backtesting new trading strategies across multiple timeframes and market conditions.</span></div></div>
+      <div class="feature-row"><div class="feat-icon">🔬</div><div class="feat-text"><strong>Crypto Market Research</strong><span>Deep-dive research into tokenomics, on-chain metrics, and macro market trends.</span></div></div>
+      <div class="feature-row" style="margin-bottom:32px;"><div class="feat-icon">🎓</div><div class="feat-text"><strong>Free Education — No Gatekeeping</strong><span>Anyone can reach out to learn about crypto trading. Knowledge is shared openly.</span></div></div>
+      <a href="#connect" class="btn-gold">REACH OUT TO LEARN</a>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- STRATEGIES -->
-  <section class="section-strategies" id="strategies">
-    <div class="section-header reveal">
-      <span class="section-eyebrow">AREAS OF RESEARCH</span>
-      <h2 class="section-title">TRADING <span>DISCIPLINES</span></h2>
-      <div class="section-line"></div>
+<!-- ===== STRATEGIES ===== -->
+<section class="section-strategies" id="strategies">
+  <div class="sec-header reveal">
+    <span class="sec-eye">AREAS OF RESEARCH</span>
+    <h2 class="sec-title">TRADING <span>DISCIPLINES</span></h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="strat-grid">
+    <div class="strat-card reveal rd1"><div class="strat-num">01 / 06</div><div class="strat-ico">📈</div><div class="strat-title">TREND FOLLOWING</div><p class="strat-desc">Identifying and riding macro and micro trends using moving averages, momentum oscillators, and multi-timeframe confluence methods.</p><span class="strat-tag">SWING / POSITION</span></div>
+    <div class="strat-card reveal rd2"><div class="strat-num">02 / 06</div><div class="strat-ico">⚡</div><div class="strat-title">BREAKOUT TRADING</div><p class="strat-desc">Spotting key consolidation zones, volume accumulation patterns, and executing precise breakout entries with defined risk parameters.</p><span class="strat-tag">INTRADAY / SWING</span></div>
+    <div class="strat-card reveal rd3"><div class="strat-num">03 / 06</div><div class="strat-ico">🎯</div><div class="strat-title">SUPPORT & RESISTANCE</div><p class="strat-desc">Mapping institutional order blocks, demand/supply zones, and liquidity pools to find high-probability reversal and continuation setups.</p><span class="strat-tag">ALL TIMEFRAMES</span></div>
+    <div class="strat-card reveal rd1"><div class="strat-num">04 / 06</div><div class="strat-ico">🔗</div><div class="strat-title">ON-CHAIN ANALYSIS</div><p class="strat-desc">Reading blockchain data — wallet flows, exchange inflows, whale movements, and miner behavior to anticipate market turning points.</p><span class="strat-tag">MACRO / RESEARCH</span></div>
+    <div class="strat-card reveal rd2"><div class="strat-num">05 / 06</div><div class="strat-ico">⚖️</div><div class="strat-title">RISK MANAGEMENT</div><p class="strat-desc">Position sizing frameworks, stop-loss discipline, portfolio allocation rules, and psychological frameworks for long-term capital preservation.</p><span class="strat-tag">FUNDAMENTAL</span></div>
+    <div class="strat-card reveal rd3"><div class="strat-num">06 / 06</div><div class="strat-ico">🌐</div><div class="strat-title">MACRO & SENTIMENT</div><p class="strat-desc">Correlating crypto markets with global macro events, Fed policy, BTC dominance cycles, fear & greed index, and funding rates.</p><span class="strat-tag">RESEARCH</span></div>
+  </div>
+</section>
+
+<!-- ===== CONNECT ===== -->
+<section class="section-connect" id="connect">
+  <div class="connect-box reveal">
+    <div class="connect-grid"></div>
+    <div class="c-particle" style="width:4px;height:4px;left:10%;animation-duration:6s;animation-delay:0s;"></div>
+    <div class="c-particle" style="width:3px;height:3px;left:35%;animation-duration:8s;animation-delay:1.2s;"></div>
+    <div class="c-particle" style="width:5px;height:5px;left:60%;animation-duration:7s;animation-delay:2s;"></div>
+    <div class="c-particle" style="width:3px;height:3px;left:80%;animation-duration:9s;animation-delay:.5s;"></div>
+    <span class="sec-eye" style="position:relative;z-index:2;"><span class="live-dot"></span>FIND ME ONLINE</span>
+    <h2 class="connect-title">CONNECT WITH <span>CRYPTO ORATOR</span></h2>
+    <p class="connect-desc">Want to learn about crypto trading? Have a question about strategies or market structure? Reach out — no gatekeeping, no paywalls.</p>
+    <div class="socials">
+      <a href="https://t.me/crypto_orator" target="_blank" class="soc-btn soc-tg">
+        <div class="soc-icon"><svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.04 13.947l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.832.953l.276-.341z" fill="#0088cc"/></svg></div>
+        <div class="soc-info"><strong>TELEGRAM</strong><span>@crypto_orator</span></div>
+      </a>
+      <a href="https://x.com/crypto_orator" target="_blank" class="soc-btn soc-tw">
+        <div class="soc-icon"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="#fff"/></svg></div>
+        <div class="soc-info"><strong>X (TWITTER)</strong><span>@crypto_orator</span></div>
+      </a>
+      <a href="https://discord.com/users/Crypto_orator" target="_blank" class="soc-btn soc-dc">
+        <div class="soc-icon"><svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="#7289da"/></svg></div>
+        <div class="soc-info"><strong>DISCORD</strong><span>Crypto_orator</span></div>
+      </a>
     </div>
+  </div>
+</section>
 
-    <div class="strategies-grid">
-      <div class="strategy-card reveal reveal-delay-1">
-        <div class="strategy-num">01 / 06</div>
-        <div class="strategy-icon-wrap">
-          <div class="strategy-icon-bg">📈</div>
-        </div>
-        <div class="strategy-title">TREND FOLLOWING</div>
-        <p class="strategy-desc">Identifying and riding macro and micro trends using moving averages, momentum oscillators, and multi-timeframe confluence methods.</p>
-        <span class="strategy-tag">SWING / POSITION</span>
-      </div>
+<footer>
+  <div class="foot-logo">CRYPTO ORATOR</div>
+  <div class="foot-copy">© 2025 CRYPTO ORATOR — ALL RIGHTS RESERVED</div>
+  <div class="foot-disc">Not financial advice. Educational purposes only.</div>
+</footer>
 
-      <div class="strategy-card reveal reveal-delay-2">
-        <div class="strategy-num">02 / 06</div>
-        <div class="strategy-icon-wrap">
-          <div class="strategy-icon-bg">⚡</div>
-        </div>
-        <div class="strategy-title">BREAKOUT TRADING</div>
-        <p class="strategy-desc">Spotting key consolidation zones, volume accumulation patterns, and executing precise breakout entries with defined risk parameters.</p>
-        <span class="strategy-tag">INTRADAY / SWING</span>
-      </div>
-
-      <div class="strategy-card reveal reveal-delay-3">
-        <div class="strategy-num">03 / 06</div>
-        <div class="strategy-icon-wrap">
-          <div class="strategy-icon-bg">🎯</div>
-        </div>
-        <div class="strategy-title">SUPPORT & RESISTANCE</div>
-        <p class="strategy-desc">Mapping institutional order blocks, demand/supply zones, and liquidity pools to find high-probability reversal and continuation setups.</p>
-        <span class="strategy-tag">ALL TIMEFRAMES</span>
-      </div>
-
-      <div class="strategy-card reveal reveal-delay-1">
-        <div class="strategy-num">04 / 06</div>
-        <div class="strategy-icon-wrap">
-          <div class="strategy-icon-bg">🔗</div>
-        </div>
-        <div class="strategy-title">ON-CHAIN ANALYSIS</div>
-        <p class="strategy-desc">Reading blockchain data — wallet flows, exchange inflows, whale movements, and miner behavior to anticipate market turning points.</p>
-        <span class="strategy-tag">MACRO / RESEARCH</span>
-      </div>
-
-      <div class="strategy-card reveal reveal-delay-2">
-        <div class="strategy-num">05 / 06</div>
-        <div class="strategy-icon-wrap">
-          <div class="strategy-icon-bg">⚖️</div>
-        </div>
-        <div class="strategy-title">RISK MANAGEMENT</div>
-        <p class="strategy-desc">Position sizing frameworks, stop-loss discipline, portfolio allocation rules, and psychological frameworks for long-term capital preservation.</p>
-        <span class="strategy-tag">FUNDAMENTAL</span>
-      </div>
-
-      <div class="strategy-card reveal reveal-delay-3">
-        <div class="strategy-num">06 / 06</div>
-        <div class="strategy-icon-wrap">
-          <div class="strategy-icon-bg">🌐</div>
-        </div>
-        <div class="strategy-title">MACRO & SENTIMENT</div>
-        <p class="strategy-desc">Correlating crypto markets with global macro events, Fed policy, BTC dominance cycles, fear & greed index, and funding rates.</p>
-        <span class="strategy-tag">RESEARCH</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONNECT -->
-  <section class="section-connect" id="connect">
-    <div class="connect-inner reveal">
-      <span class="section-eyebrow"><span class="live-dot"></span>FIND ME ONLINE</span>
-      <h2 class="connect-title">CONNECT WITH <span>CRYPTO ORATOR</span></h2>
-      <p class="connect-desc">
-        Want to learn about crypto trading? Have a question about strategies or market structure? Reach out — no gatekeeping, no paywalls.
-      </p>
-      <div class="social-links">
-        <a href="https://t.me/crypto_orator" target="_blank" class="social-btn telegram">
-          <div class="social-icon">✈</div>
-          TELEGRAM
-        </a>
-        <a href="https://x.com/crypto_orator" target="_blank" class="social-btn twitter">
-          <div class="social-icon">𝕏</div>
-          X (TWITTER)
-        </a>
-  <a href="https://discord.com/users/crypto_orator" target="_blank" class="social-btn discord">
-          <div class="social-icon">𝕏</div>
-         DISCORD
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-logo">CRYPTO ORATOR</div>
-    <div class="footer-text">© 2025 CRYPTO ORATOR — ALL RIGHTS RESERVED</div>
-    <div class="footer-disclaimer">Not financial advice. All content is for educational purposes only. Trade at your own risk.</div>
-  </footer>
-
-</div>
+</div><!-- /wrapper -->
 
 <script>
-// ============================================================
-// CURSOR
-// ============================================================
-const cursor = document.getElementById('cursor');
-const cursorRing = document.getElementById('cursor-ring');
-let cx = 0, cy = 0, rx = 0, ry = 0;
+/* ===== MOBILE MENU ===== */
+const ham=document.getElementById('hamburger'),mmenu=document.getElementById('mobile-menu');
+ham.addEventListener('click',()=>{mmenu.classList.toggle('open');});
+function closeMMenu(){mmenu.classList.remove('open');}
+document.addEventListener('click',e=>{if(!ham.contains(e.target)&&!mmenu.contains(e.target))mmenu.classList.remove('open');});
 
-document.addEventListener('mousemove', e => {
-  cx = e.clientX; cy = e.clientY;
-  cursor.style.left = cx + 'px';
-  cursor.style.top = cy + 'px';
-});
-
-function animateCursor() {
-  rx += (cx - rx) * 0.12;
-  ry += (cy - ry) * 0.12;
-  cursorRing.style.left = rx + 'px';
-  cursorRing.style.top = ry + 'px';
-  requestAnimationFrame(animateCursor);
+/* ===== CURSOR (desktop only) ===== */
+const cur=document.getElementById('cursor'),curR=document.getElementById('cursor-ring');
+if(cur&&curR){
+  let cx=0,cy=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY;cur.style.left=cx+'px';cur.style.top=cy+'px';});
+  (function tick(){rx+=(cx-rx)*.12;ry+=(cy-ry)*.12;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(tick);})();
+  document.querySelectorAll('a,button').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2)';curR.style.transform='translate(-50%,-50%) scale(1.6)';});el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';curR.style.transform='translate(-50%,-50%) scale(1)';});});
 }
-animateCursor();
 
-document.querySelectorAll('a, button').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cursor.style.transform = 'translate(-50%, -50%) scale(2)';
-    cursorRing.style.transform = 'translate(-50%, -50%) scale(1.5)';
+/* ===== RESPONSIVE ORBIT SIZES ===== */
+function setOrbitSizes(){
+  const arena=document.querySelector('.orbit-arena');
+  if(!arena)return;
+  const w=arena.offsetWidth;
+  const r=[.145,.237,.332,.43,.51];
+  const paths=document.querySelectorAll('.orbit-path');
+  const sizes=[w*r[0],w*r[1],w*r[2],w*r[3],w*r[4]];
+  // ring sizes
+  const rings=document.querySelectorAll('.orbit-ring');
+  ['.ring1','.ring2','.ring3','.ring4','.ring5'].forEach((s,i)=>{
+    const el=document.querySelector(s);
+    if(el){el.style.width=sizes[i]+'px';el.style.height=sizes[i]+'px';}
   });
-  el.addEventListener('mouseleave', () => {
-    cursor.style.transform = 'translate(-50%, -50%) scale(1)';
-    cursorRing.style.transform = 'translate(-50%, -50%) scale(1)';
-  });
-});
+  // orbit paths — match by animation-duration pattern
+  const pathMap=Array.from(paths).reduce((acc,p)=>{
+    const dur=parseFloat(p.style.animationDuration)||0;
+    if(!acc[dur])acc[dur]=[];acc[dur].push(p);return acc;
+  },{});
+  // orbit 1 (ETH) = 12s, orbit 2 (BNB) = 18s, orbit 3 (SOL+XRP) = 24s, orbit 4 (memes) = 30s, orbit 5 = 38s
+  const mapping=[[12,0],[18,1],[24,2],[30,3],[38,4]];
+  mapping.forEach(([dur,idx])=>{const ps=pathMap[dur];if(ps)ps.forEach(p=>{p.style.width=sizes[idx]+'px';p.style.height=sizes[idx]+'px';});});
+}
+window.addEventListener('resize',setOrbitSizes);
+window.addEventListener('load',setOrbitSizes);
+setTimeout(setOrbitSizes,100);
 
-// ============================================================
-// BACKGROUND CANVAS — PARTICLE NETWORK
-// ============================================================
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-let W, H, particles = [];
+/* ===== BG PARTICLE CANVAS ===== */
+const bgC=document.getElementById('bg-canvas'),bgX=bgC.getContext('2d');
+let W,H,pts=[];
+function resizeBg(){W=bgC.width=window.innerWidth;H=bgC.height=window.innerHeight;}
+resizeBg();window.addEventListener('resize',resizeBg);
+class Pt{constructor(){this.reset();}reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-.5)*.25;this.vy=(Math.random()-.5)*.25;this.r=Math.random()*1.3+.4;this.a=Math.random()*.3+.07;}update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>W||this.y<0||this.y>H)this.reset();}draw(){bgX.beginPath();bgX.arc(this.x,this.y,this.r,0,Math.PI*2);bgX.fillStyle=`rgba(240,185,11,${this.a})`;bgX.fill();}}
+for(let i=0;i<80;i++)pts.push(new Pt());
+function drawBg(){bgX.clearRect(0,0,W,H);for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<80){bgX.beginPath();bgX.moveTo(pts[i].x,pts[i].y);bgX.lineTo(pts[j].x,pts[j].y);bgX.strokeStyle=`rgba(240,185,11,${(1-d/80)*.06})`;bgX.lineWidth=.5;bgX.stroke();}}}pts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(drawBg);}
+drawBg();
 
-function resizeCanvas() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
+/* ===== SCROLL REVEAL ===== */
+const revEls=document.querySelectorAll('.reveal');
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.06});
+revEls.forEach(el=>obs.observe(el));
+
+/* ===== LIVE PRICES ===== */
+const symMap={btcusdt:'btc',ethusdt:'eth',bnbusdt:'bnb',xrpusdt:'xrp',solusdt:'sol'};
+const hist={btc:[],eth:[],bnb:[],xrp:[],sol:[]};
+const MAX_H=30;
+
+function fmtP(sym,p){p=parseFloat(p);if(sym==='xrp')return'$'+p.toFixed(4);if(p>=1000)return'$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return'$'+p.toFixed(2);}
+
+function flashEl(el,isUp){el.style.color=isUp?'#0ecb81':'#f6465d';setTimeout(()=>{el.style.color=isUp?'var(--text)':'#f6465d';},500);}
+
+function drawChart(cont,prices,isUp){if(prices.length<2)return;const w=cont.offsetWidth||160,h=34;const mn=Math.min(...prices),mx=Math.max(...prices),rng=mx-mn||1;const pts2=prices.map((p,i)=>(`${(i/(prices.length-1))*w},${h-((p-mn)/rng)*(h-4)-2}`));const col=isUp?'#0ecb81':'#f6465d';cont.innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs><linearGradient id="gc${cont.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".35"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polyline points="${pts2.join(' ')}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polygon points="0,${h} ${pts2.join(' ')} ${w},${h}" fill="url(#gc${cont.id})"/></svg>`;}
+
+function updateCard(sym,price,chg){const isUp=chg>=0;hist[sym].push(price);if(hist[sym].length>MAX_H)hist[sym].shift();const pEl=document.getElementById('price-'+sym),cEl=document.getElementById('change-'+sym),bEl=document.getElementById('badge-'+sym),ch=document.getElementById('chart-'+sym);if(pEl){const f=fmtP(sym,price);if(pEl.textContent!==f){flashEl(pEl,isUp);pEl.textContent=f;}}if(cEl){cEl.textContent=(isUp?'▲':'▼')+' '+Math.abs(chg).toFixed(2)+'% (24h)';cEl.className='coin-chg '+(isUp?'up':'dn');}if(bEl){bEl.textContent=(isUp?'+':'')+chg.toFixed(2)+'%';bEl.className='price-badge '+(isUp?'up':'dn');}if(ch)drawChart(ch,hist[sym],isUp);}
+
+/* Ticker */
+const tN={btc:'BTC/USDT',eth:'ETH/USDT',bnb:'BNB/USDT',xrp:'XRP/USDT',sol:'SOL/USDT'};
+const tS={btc:{p:'$—',c:0},eth:{p:'$—',c:0},bnb:{p:'$—',c:0},xrp:{p:'$—',c:0},sol:{p:'$—',c:0}};
+function buildTicker(){const h=Object.keys(tN).map(s=>{const t=tS[s],u=t.c>=0;return`<div class="ticker-item"><span class="ticker-sym">${tN[s]}</span><span class="ticker-price">${t.p}</span><span class="ticker-chg ${u?'up':'dn'}">${u?'▲':'▼'}${Math.abs(t.c).toFixed(2)}%</span></div>`;}).join('');document.getElementById('ticker-track').innerHTML=h+h;}
+function updTicker(sym,price,chg){tS[sym]={p:fmtP(sym,price),c:chg};buildTicker();}
+buildTicker();
+
+async function seedPrices(){
+  try{
+    const syms=['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','SOLUSDT'].map(s=>`"${s}"`).join(',');
+    const res=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=[${syms}]`);
+    const data=await res.json();
+    if(Array.isArray(data)){data.forEach(d=>{const sym=symMap[d.s.toLowerCase()];if(!sym)return;const p=parseFloat(d.lastPrice),c=parseFloat(d.priceChangePercent);updateCard(sym,p,c);updTicker(sym,p,c);});}
+  }catch(e){}
+  connectWS();
 }
 
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-class Particle {
-  constructor() { this.reset(); }
-  reset() {
-    this.x = Math.random() * W;
-    this.y = Math.random() * H;
-    this.vx = (Math.random() - 0.5) * 0.3;
-    this.vy = (Math.random() - 0.5) * 0.3;
-    this.r = Math.random() * 1.5 + 0.5;
-    this.alpha = Math.random() * 0.4 + 0.1;
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
-  }
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(240,185,11,${this.alpha})`;
-    ctx.fill();
-  }
+function connectWS(){
+  const streams=Object.keys(symMap).map(s=>s+'@ticker').join('/');
+  const ws=new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+  ws.onopen=()=>{document.getElementById('api-status').innerHTML='<span class="live-dot"></span> WebSocket live · real-time stream · Binance';};
+  ws.onmessage=ev=>{try{const m=JSON.parse(ev.data),d=m.data;if(!d||!d.s)return;const sym=symMap[d.s.toLowerCase()];if(!sym)return;updateCard(sym,parseFloat(d.c),parseFloat(d.P));updTicker(sym,parseFloat(d.c),parseFloat(d.P));}catch(e){}};
+  ws.onerror=()=>{document.getElementById('api-status').textContent='⚠ Reconnecting...';ws.close();};
+  ws.onclose=()=>{setTimeout(connectWS,3000);};
 }
-
-for (let i = 0; i < 100; i++) particles.push(new Particle());
-
-function drawConnections() {
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 100) {
-        const alpha = (1 - dist/100) * 0.08;
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = `rgba(240,185,11,${alpha})`;
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
-      }
-    }
-  }
-}
-
-function animateCanvas() {
-  ctx.clearRect(0, 0, W, H);
-  particles.forEach(p => { p.update(); p.draw(); });
-  drawConnections();
-  requestAnimationFrame(animateCanvas);
-}
-animateCanvas();
-
-// ============================================================
-// SCROLL REVEAL
-// ============================================================
-const revealEls = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('visible'); }
-  });
-}, { threshold: 0.1 });
-revealEls.forEach(el => observer.observe(el));
-
-// ============================================================
-// LIVE PRICE — BINANCE WEBSOCKET (Real-time stream)
-// ============================================================
-const symbolMap = {
-  btcusdt: 'btc',
-  ethusdt: 'eth',
-  bnbusdt: 'bnb',
-  xrpusdt: 'xrp',
-  solusdt: 'sol'
-};
-
-const priceHistory = { btc: [], eth: [], bnb: [], xrp: [], sol: [] };
-const refPrice = {};   // stores 24h open price for change %
-const MAX_HISTORY = 30;
-
-function formatPrice(sym, price) {
-  const p = parseFloat(price);
-  if (sym === 'xrp') return '$' + p.toFixed(4);
-  if (p >= 1000) return '$' + p.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-  return '$' + p.toFixed(2);
-}
-
-function flashPrice(el, isUp) {
-  el.style.transition = 'color 0.15s';
-  el.style.color = isUp ? '#0ecb81' : '#f6465d';
-  setTimeout(() => {
-    el.style.color = isUp ? '#fff' : '#f6465d';
-  }, 400);
-}
-
-function drawMiniChart(container, prices, isUp) {
-  if (prices.length < 2) return;
-  const w = container.offsetWidth || 180;
-  const h = 40;
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
-  const range = max - min || 1;
-  const pts = prices.map((p, i) => {
-    const x = (i / (prices.length - 1)) * w;
-    const y = h - ((p - min) / range) * (h - 4) - 2;
-    return `${x},${y}`;
-  });
-  const color = isUp ? '#0ecb81' : '#f6465d';
-  container.innerHTML = `
-    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="g${container.id}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${color}" stop-opacity="0.35"/>
-          <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <polygon points="0,${h} ${pts.join(' ')} ${w},${h}" fill="url(#g${container.id})"/>
-    </svg>
-  `;
-}
-
-function updateCard(sym, price, changePct) {
-  const isUp = changePct >= 0;
-  priceHistory[sym].push(price);
-  if (priceHistory[sym].length > MAX_HISTORY) priceHistory[sym].shift();
-
-  const priceEl = document.getElementById(`price-${sym}`);
-  const changeEl = document.getElementById(`change-${sym}`);
-  const badgeEl  = document.getElementById(`badge-${sym}`);
-  const chartEl  = document.getElementById(`chart-${sym}`);
-
-  if (priceEl) {
-    const formatted = formatPrice(sym, price);
-    if (priceEl.textContent !== formatted) {
-      flashPrice(priceEl, isUp);
-      priceEl.textContent = formatted;
-    }
-  }
-  if (changeEl) {
-    changeEl.textContent = `${isUp ? '▲' : '▼'} ${Math.abs(changePct).toFixed(2)}% (24h)`;
-    changeEl.className = `crypto-change ${isUp ? 'up' : 'down'}`;
-  }
-  if (badgeEl) {
-    badgeEl.textContent = `${isUp ? '+' : ''}${changePct.toFixed(2)}%`;
-    badgeEl.className = `price-badge ${isUp ? 'up' : 'down'}`;
-  }
-  if (chartEl) drawMiniChart(chartEl, priceHistory[sym], isUp);
-}
-
-// ---- WebSocket connection ----
-function connectWebSocket() {
-  const streams = Object.keys(symbolMap).map(s => `${s}@ticker`).join('/');
-  const ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
-
-  ws.onopen = () => {
-    document.getElementById('api-status').innerHTML =
-      `<span class="live-dot"></span> WebSocket connected — real-time stream · Source: Binance`;
-  };
-
-  ws.onmessage = (event) => {
-    try {
-      const msg = JSON.parse(event.data);
-      const d = msg.data;
-      if (!d || !d.s) return;
-      const sym = symbolMap[d.s.toLowerCase()];
-      if (!sym) return;
-      const price = parseFloat(d.c);    // last price
-      const changePct = parseFloat(d.P); // price change %
-      updateCard(sym, price, changePct);
-      // update ticker too
-      updateTickerItem(sym, price, changePct);
-    } catch(e) {}
-  };
-
-  ws.onerror = () => {
-    document.getElementById('api-status').textContent = '⚠ WebSocket error — retrying...';
-    ws.close();
-  };
-
-  ws.onclose = () => {
-    document.getElementById('api-status').textContent = '⟳ Reconnecting...';
-    setTimeout(connectWebSocket, 3000);
-  };
-}
-
-// Initial REST fetch to seed history fast, then WS takes over
-async function seedPrices() {
-  try {
-    const syms = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','SOLUSDT'].map(s=>`"${s}"`).join(',');
-    const res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=[${syms}]`);
-    const data = await res.json();
-    if (Array.isArray(data)) {
-      data.forEach(item => {
-        const sym = symbolMap[item.symbol.toLowerCase()];
-        if (!sym) return;
-        updateCard(sym, parseFloat(item.lastPrice), parseFloat(item.priceChangePercent));
-      });
-      updateTickerFromRest(data);
-    }
-  } catch(e) {}
-  connectWebSocket();
-}
-
-// ============================================================
-// TICKER
-// ============================================================
-const tickerSymNames = { btc:'BTC/USDT', eth:'ETH/USDT', bnb:'BNB/USDT', xrp:'XRP/USDT', sol:'SOL/USDT' };
-const tickerState = { btc:{price:'$—',change:0}, eth:{price:'$—',change:0}, bnb:{price:'$—',change:0}, xrp:{price:'$—',change:0}, sol:{price:'$—',change:0} };
-
-function buildAllTicker() {
-  const html = Object.keys(tickerSymNames).map(sym => {
-    const t = tickerState[sym];
-    const isUp = t.change >= 0;
-    return `<div class="ticker-item">
-      <span class="ticker-symbol">${tickerSymNames[sym]}</span>
-      <span class="ticker-price">${t.price}</span>
-      <span class="ticker-change ${isUp?'up':'down'}">${isUp?'▲':'▼'}${Math.abs(t.change).toFixed(2)}%</span>
-    </div>`;
-  }).join('');
-  document.getElementById('ticker-track').innerHTML = html + html;
-}
-
-function updateTickerItem(sym, price, change) {
-  tickerState[sym] = { price: formatPrice(sym, price), change };
-  buildAllTicker();
-}
-
-function updateTickerFromRest(data) {
-  data.forEach(item => {
-    const sym = symbolMap[item.symbol.toLowerCase()];
-    if (!sym) return;
-    tickerState[sym] = { price: formatPrice(sym, parseFloat(item.lastPrice)), change: parseFloat(item.priceChangePercent) };
-  });
-  buildAllTicker();
-}
-
-buildAllTicker();
 seedPrices();
 </script>
 </body>
