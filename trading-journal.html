@@ -214,7 +214,8 @@ let currentView='dashboard';
 let filterMarket='All';
 let deleteTarget=null;
 let openTradeId=null;
-let SHEET_URL=localStorage.getItem('tj_sheet_url')||'';
+const DEFAULT_SHEET_URL='https://script.google.com/macros/s/AKfycbxNRQ6z-grT56CNRyq-9wTjOLtpvT88h1HlWy-vpoXHPiR9Gr1JuvZGijZWWVHu0bSW/exec';
+let SHEET_URL=localStorage.getItem('tj_sheet_url')||DEFAULT_SHEET_URL;
 
 // ── Sync helpers ─────────────────────────────────────────────
 function setSyncStatus(state,label){
@@ -307,7 +308,7 @@ function switchView(v){
 
 // ── Setup Banner ─────────────────────────────────────────────
 function setupBannerHTML(){
-  if(SHEET_URL) return `
+  if(SHEET_URL||DEFAULT_SHEET_URL) return `
     <div class="setup-banner" style="border-color:#00ffaa22">
       <div class="setup-title" style="color:var(--green)">✅ Google Sheets Connected</div>
       <div class="setup-sub">আপনার সব trade Google Sheets-এ save হচ্ছে। যেকোনো device থেকে access করতে পারবেন।</div>
@@ -509,10 +510,8 @@ function confirmDelete(){
 // ── Init ──────────────────────────────────────────────────────
 (async()=>{
   try{const s=localStorage.getItem('tj_trades_v2');if(s)trades=JSON.parse(s);}catch(e){}
-  if(SHEET_URL){
-    setSyncStatus('syncing','Connecting...');
-    await loadFromSheets();
-  }
+  setSyncStatus('syncing','Connecting...');
+  await loadFromSheets();
   switchView('dashboard');
 })();
 </script>
