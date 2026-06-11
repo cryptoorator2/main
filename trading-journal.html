@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Trading Journal — Forex & Crypto</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#06080f;--surface:#0d1117;--panel:#0f1520;--border:#1a2540;
+  --green:#00ffaa;--red:#ff3b6b;--gold:#f5c542;--blue:#4d9fff;--purple:#c084fc;
+  --text:#e2e8f0;--muted:#4a6fa5;--mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;
+}
+body{background:var(--void);color:var(--text);font-family:var(--sans);min-height:100vh}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 14px #00ffaa30}50%{box-shadow:0 0 32px #00ffaa60}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.ticker{overflow:hidden;background:#080c14;border-bottom:1px solid var(--border);padding:7px 0;white-space:nowrap}
+.ticker-inner{display:inline-flex;gap:52px;animation:ticker 30s linear infinite}
+.ticker-item{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.4px}
+.ticker-item .up{color:var(--green)}.ticker-item .dn{color:var(--red)}
+
+.header{background:linear-gradient(180deg,#0d1117,#06080f);border-bottom:1px solid var(--border);
+  padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#00ffaa15,#4d9fff15);
+  border:1px solid #00ffaa33;display:flex;align-items:center;justify-content:center;font-size:20px;animation:glow 3s ease-in-out infinite}
+.logo-name{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav-btn{padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:transparent;
+  color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans);transition:all .2s}
+.nav-btn:hover{border-color:#2a3f60;color:#7eb3ff}
+.nav-btn.active{background:linear-gradient(135deg,#00ffaa15,#4d9fff15);border-color:#00ffaa44;color:var(--green)}
+
+.sync-status{display:flex;align-items:center;gap:6px;font-size:11px;padding:5px 12px;border-radius:8px;border:1px solid var(--border)}
+.sync-dot{width:7px;height:7px;border-radius:50%}
+.sync-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
+.sync-dot.err{background:var(--red)}
+.sync-dot.syncing{background:var(--gold);animation:pulse .8s infinite}
+.sync-dot.setup{background:var(--muted)}
+
+.page{max-width:900px;margin:0 auto;padding:28px 20px}
+
+/* setup banner */
+.setup-banner{background:linear-gradient(135deg,#0d1a2e,#0d1117);border:1px solid #1e3a5f;
+  border-radius:16px;padding:24px;margin-bottom:24px;animation:fadeUp .4s ease both}
+.setup-title{font-size:16px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.setup-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.setup-input-row{display:flex;gap:10px;flex-wrap:wrap}
+.setup-input{flex:1;min-width:200px;background:var(--void);border:1px solid var(--border);border-radius:10px;
+  padding:11px 14px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;transition:border-color .2s}
+.setup-input:focus{border-color:#4d9fff66;box-shadow:0 0 0 3px #4d9fff10}
+.setup-btn{padding:11px 22px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:700;
+  font-family:var(--sans);background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;white-space:nowrap}
+.steps{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.step{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--muted);line-height:1.6}
+.step-num{min-width:20px;height:20px;border-radius:50%;background:#1a2f4a;color:var(--blue);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-top:1px}
+.step a{color:var(--blue);text-decoration:none}
+.step code{background:#0a0e18;border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--green);font-family:var(--mono)}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;
+  position:relative;overflow:hidden;animation:fadeUp .4s ease both;transition:transform .2s,border-color .2s}
+.stat-card:hover{transform:translateY(-3px);border-color:#2a3f60}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--acc)}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
+.stat-value{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--vc)}
+.stat-sub{font-size:11px;color:#2a3f5f;margin-top:4px}
+.wr-bar{height:5px;background:#1a2540;border-radius:3px;margin-top:8px;overflow:hidden}
+.wr-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--blue));transition:width 1s ease}
+.candle-deco{position:absolute;right:14px;bottom:10px;display:flex;align-items:flex-end;gap:3px;opacity:.1}
+.candle{width:6px;border-radius:2px;background:var(--green)}
+
+.bw-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.bw-card{background:var(--surface);border-radius:14px;padding:18px 20px;animation:fadeUp .45s ease both;border:1px solid var(--border)}
+.bw-val{font-family:var(--mono);font-size:22px;font-weight:700;margin-top:6px}
+.bw-meta{font-size:11px;color:var(--muted);margin-top:5px}
+
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+.trade-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  margin-bottom:10px;overflow:hidden;transition:border-color .2s;animation:slideIn .3s ease both}
+.trade-card:hover{border-color:#2a3f60}
+.trade-row{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;transition:background .15s}
+.trade-row:hover{background:#0f1520}
+.trade-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;animation:pulse 2.5s ease-in-out infinite}
+.trade-pair{font-weight:700;font-size:15px}
+.trade-meta{font-size:11px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.4px;text-transform:uppercase}
+.b-forex{background:#1a2f4a;color:var(--blue)}.b-crypto{background:#1a1a3a;color:var(--purple)}
+.b-buy{background:#0d2e1e;color:var(--green)}.b-sell{background:#2e0d1a;color:var(--red)}
+.trade-pnl{font-family:var(--mono);font-size:18px;font-weight:600}
+.trade-result{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.chevron{color:#2a3f5f;font-size:13px;transition:transform .2s;flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+
+.trade-detail{padding:0 18px 16px 40px;background:#080c14;border-top:1px solid var(--border)}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:12px}
+.dc{background:var(--surface);border-radius:10px;padding:10px 14px;border:1px solid var(--border)}
+.dc-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.dc-val{font-family:var(--mono);font-size:14px;font-weight:600;margin-top:4px}
+.notes-box{margin-top:12px;padding:12px 14px;background:var(--surface);border-radius:10px;
+  border-left:3px solid var(--blue);font-size:13px;color:#8899aa;line-height:1.6}
+.act-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
+  font-family:var(--sans);transition:all .2s;background:transparent}
+.btn-edit{border:1px solid #1e3a5f;color:var(--blue)}.btn-edit:hover{background:#1a2f4a}
+.btn-del{border:1px solid #3f1e1e;color:var(--red)}.btn-del:hover{background:#2e0d1a}
+
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;animation:fadeUp .35s ease both}
+.form-title{font-size:20px;font-weight:700;margin-bottom:24px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fl{font-size:11px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.9px}
+.fi,.fs,.ft{width:100%;background:var(--void);border:1px solid var(--border);border-radius:10px;
+  padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--sans);outline:none;transition:border-color .2s,box-shadow .2s}
+.fi:focus,.fs:focus,.ft:focus{border-color:#00ffaa55;box-shadow:0 0 0 3px #00ffaa12}
+.ft{resize:vertical;min-height:80px;line-height:1.6}
+.submit-btn{width:100%;padding:13px;border-radius:12px;border:none;cursor:pointer;font-size:15px;font-weight:700;
+  font-family:var(--sans);background:linear-gradient(135deg,var(--green),var(--blue));color:#06080f;
+  transition:transform .15s,box-shadow .15s;margin-top:20px}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px #00ffaa40}
+.cancel-btn{padding:13px 24px;border-radius:12px;border:1px solid var(--border);cursor:pointer;
+  background:transparent;color:var(--muted);font-size:14px;font-weight:600;font-family:var(--sans);transition:all .2s;margin-top:20px}
+.cancel-btn:hover{border-color:#2a3f60;color:#7eb3ff}
+
+.filter-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--border);cursor:pointer;
+  font-size:12px;font-weight:600;font-family:var(--sans);transition:all .2s;background:transparent;color:var(--muted)}
+.filter-pill.active{background:linear-gradient(135deg,#00ffaa18,#4d9fff18);border-color:#00ffaa44;color:var(--green)}
+
+.empty{text-align:center;padding:64px 20px;animation:fadeUp .4s ease both}
+.empty-icon{font-size:52px;margin-bottom:14px;opacity:.4}
+.empty-text{color:#2a3f5f;font-size:15px;line-height:1.7}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--surface);
+  border:1px solid #00ffaa33;border-radius:12px;padding:12px 22px;font-size:14px;color:var(--green);
+  font-weight:600;box-shadow:0 8px 40px #00ffaa1a;animation:fadeUp .3s ease both;z-index:999;white-space:nowrap}
+
+.overlay{position:fixed;inset:0;background:#00000088;display:flex;align-items:center;justify-content:center;z-index:200;animation:fadeUp .2s ease}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;max-width:360px;width:90%;text-align:center}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:10px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6}
+.modal-btns{display:flex;gap:10px}
+.modal-del{flex:1;padding:11px;border-radius:10px;border:none;background:var(--red);color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--sans)}
+.modal-cancel{flex:1;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;font-family:var(--sans)}
+
+.spinner{width:14px;height:14px;border:2px solid #1a2540;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}.bw-grid{grid-template-columns:1fr}
+  .header{padding:12px 16px}.page{padding:20px 14px}
+  .nav-btn{padding:7px 10px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="ticker"><div class="ticker-inner" id="ticker-inner"></div></div>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">📈</div>
+    <div>
+      <div class="logo-name">Trade Journal</div>
+      <div class="logo-sub">Forex & Crypto</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" data-view="dashboard" onclick="switchView('dashboard')">▦ Dashboard</button>
+    <button class="nav-btn" data-view="add" onclick="switchView('add')">＋ New Trade</button>
+    <button class="nav-btn" data-view="history" onclick="switchView('history')">≡ History</button>
+  </nav>
+  <div class="sync-status" id="sync-status">
+    <div class="sync-dot setup" id="sync-dot"></div>
+    <span id="sync-label" style="color:var(--muted)">Google Sheets setup করুন</span>
+  </div>
+</div>
+
+<div class="page">
+  <div id="view-dashboard"></div>
+  <div id="view-add" style="display:none"></div>
+  <div id="view-history" style="display:none"></div>
+</div>
+
+<div class="toast" id="toast" style="display:none"></div>
+
+<div class="overlay" id="del-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">Trade মুছে ফেলবেন?</div>
+    <div class="modal-sub">এই কাজটি undo করা যাবে না।</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">বাতিল</button>
+      <button class="modal-del" onclick="confirmDelete()">🗑️ মুছুন</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const EMOTIONS=["😎 Confident","😰 Anxious","😤 Frustrated","🧘 Calm","🤑 Greedy","😨 Fearful"];
+const MARKETS=["Forex","Crypto"];
+const RESULTS=["Win","Loss","Breakeven"];
+const PAIRS=["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","BTC/USDT","ETH/USDT","SOL/USDT","BNB/USDT","XRP/USDT"];
+
+let trades=[];
+let editId=null;
+let currentView='dashboard';
+let filterMarket='All';
+let deleteTarget=null;
+let openTradeId=null;
+let SHEET_URL=localStorage.getItem('tj_sheet_url')||'';
+
+// ── Sync helpers ─────────────────────────────────────────────
+function setSyncStatus(state,label){
+  const dot=document.getElementById('sync-dot');
+  const lbl=document.getElementById('sync-label');
+  dot.className='sync-dot '+state;
+  lbl.textContent=label;
+  lbl.style.color=state==='ok'?'var(--green)':state==='err'?'var(--red)':state==='syncing'?'var(--gold)':'var(--muted)';
+}
+
+async function loadFromSheets(){
+  if(!SHEET_URL)return;
+  setSyncStatus('syncing','Loading...');
+  try{
+    const r=await fetch(SHEET_URL,{method:'GET'});
+    const d=await r.json();
+    if(d.success){trades=d.trades||[];setSyncStatus('ok','Google Sheets ✓');}
+    else{setSyncStatus('err','Load error');}
+  }catch(e){setSyncStatus('err','Connection error');}
+}
+
+async function saveToSheets(){
+  if(!SHEET_URL){saveLocal();return;}
+  setSyncStatus('syncing','Saving...');
+  try{
+    const r=await fetch(SHEET_URL,{method:'POST',body:JSON.stringify({action:'save',trades})});
+    const d=await r.json();
+    if(d.success){setSyncStatus('ok','Saved ✓');saveLocal();}
+    else{setSyncStatus('err','Save error');saveLocal();}
+  }catch(e){setSyncStatus('err','Connection error');saveLocal();}
+}
+
+function saveLocal(){
+  try{localStorage.setItem('tj_trades_v2',JSON.stringify(trades));}catch(e){}
+}
+
+function connectSheet(){
+  const url=document.getElementById('sheet-url-input').value.trim();
+  if(!url){toast('⚠️ URL দিন');return;}
+  SHEET_URL=url;
+  localStorage.setItem('tj_sheet_url',url);
+  toast('🔗 Connecting...');
+  loadFromSheets().then(()=>{
+    if(currentView==='dashboard') renderDashboard();
+    else renderHistory();
+    toast('✅ Google Sheets connected!');
+  });
+}
+
+function disconnectSheet(){
+  SHEET_URL='';
+  localStorage.removeItem('tj_sheet_url');
+  setSyncStatus('setup','Google Sheets setup করুন');
+  toast('🔌 Disconnected');
+  if(currentView==='dashboard') renderDashboard();
+}
+
+// ── Ticker ───────────────────────────────────────────────────
+function buildTicker(){
+  const wrap=document.getElementById('ticker-inner');
+  const items=[...PAIRS,...PAIRS].map(p=>{
+    const px=(Math.random()*1000+1).toFixed(p.includes('BTC')||p.includes('ETH')?2:4);
+    const up=Math.random()>.5;
+    return`<span class="ticker-item">${p}<span class="${up?'up':'dn'}">${up?'+':'-'}${px}</span></span>`;
+  }).join('');
+  wrap.innerHTML=items+items;
+}
+buildTicker();
+
+// ── Utils ────────────────────────────────────────────────────
+function fmt(v){const n=parseFloat(v);if(isNaN(n))return'—';return(n>=0?'+':'')+n.toFixed(2);}
+function toast(msg,dur=2400){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.style.display='block';
+  clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',dur);
+}
+
+// ── Views ────────────────────────────────────────────────────
+function switchView(v){
+  currentView=v;
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.view===v);
+    if(b.dataset.view==='add')b.textContent=editId?'✎ Edit':'＋ New Trade';
+  });
+  ['dashboard','add','history'].forEach(x=>document.getElementById('view-'+x).style.display=x===v?'block':'none');
+  if(v==='dashboard')renderDashboard();
+  else if(v==='add')renderForm();
+  else if(v==='history')renderHistory();
+}
+
+// ── Setup Banner ─────────────────────────────────────────────
+function setupBannerHTML(){
+  if(SHEET_URL) return `
+    <div class="setup-banner" style="border-color:#00ffaa22">
+      <div class="setup-title" style="color:var(--green)">✅ Google Sheets Connected</div>
+      <div class="setup-sub">আপনার সব trade Google Sheets-এ save হচ্ছে। যেকোনো device থেকে access করতে পারবেন।</div>
+      <button class="act-btn btn-del" onclick="disconnectSheet()" style="font-size:13px;padding:8px 16px">🔌 Disconnect</button>
+    </div>`;
+
+  return`
+  <div class="setup-banner">
+    <div class="setup-title">🔗 Google Sheets এ connect করুন</div>
+    <div class="setup-sub">নিচের ধাপগুলো follow করলে আপনার সব trade যেকোনো device থেকে দেখতে পাবেন।</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><span><a href="https://script.google.com" target="_blank">script.google.com</a> এ যান → New Project → <code>google-apps-script.js</code> ফাইলের code paste করুন</span></div>
+      <div class="step"><div class="step-num">2</div><span>উপরে Project নাম দিন → <strong>Deploy</strong> → <strong>New deployment</strong> → Type: <strong>Web app</strong> → Execute as: <strong>Me</strong> → Who has access: <strong>Anyone</strong> → Deploy</span></div>
+      <div class="step"><div class="step-num">3</div><span>Deploy হওয়ার পর <strong>Web app URL</strong> copy করুন (https://script.google.com/macros/s/...)</span></div>
+      <div class="step"><div class="step-num">4</div><span>নিচে সেই URL paste করে <strong>Connect</strong> করুন</span></div>
+    </div>
+    <div class="setup-input-row" style="margin-top:16px">
+      <input class="setup-input" id="sheet-url-input" placeholder="https://script.google.com/macros/s/.../exec" value="${SHEET_URL}">
+      <button class="setup-btn" onclick="connectSheet()">🔗 Connect</button>
+    </div>
+  </div>`;
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+function renderDashboard(){
+  const el=document.getElementById('view-dashboard');
+  const totalPnl=trades.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const wins=trades.filter(t=>t.result==='Win').length;
+  const losses=trades.filter(t=>t.result==='Loss').length;
+  const be=trades.filter(t=>t.result==='Breakeven').length;
+  const wr=trades.length?Math.round(wins/trades.length*100):0;
+  const best=trades.reduce((b,t)=>(!b||parseFloat(t.pnl)>parseFloat(b.pnl))?t:b,null);
+  const worst=trades.reduce((w,t)=>(!w||parseFloat(t.pnl)<parseFloat(w.pnl))?t:w,null);
+
+  el.innerHTML=`
+  ${setupBannerHTML()}
+  <div class="stat-grid">
+    ${sc('Total P&L',fmt(totalPnl)+' $',totalPnl>=0?'#00ffaa':'#ff3b6b',totalPnl>=0?'linear-gradient(90deg,#00ffaa,#4d9fff)':'linear-gradient(90deg,#ff3b6b,#ff9f43)','0s',[40,30,55,25,48,35,52,28,45])}
+    ${sc('Win Rate',wr+'%','#4d9fff','linear-gradient(90deg,#4d9fff,#c084fc)','0.08s',null,`<div class="stat-sub">${wins}W · ${losses}L · ${be}BE</div><div class="wr-bar"><div class="wr-fill" style="width:${wr}%"></div></div>`)}
+    ${sc('Total Trades',trades.length,'#c084fc','linear-gradient(90deg,#c084fc,#f5c542)','0.16s')}
+    ${sc('Best Trade',best?fmt(best.pnl)+' $':'—','#00ffaa','linear-gradient(90deg,#00ffaa,#4d9fff)','0.24s',null,best?`<div class="stat-sub">${best.pair} · ${best.date}</div>`:'')}
+  </div>
+  <div class="bw-grid">
+    <div class="bw-card" style="border-color:#00ffaa15">
+      <div class="stat-label">🏆 Best Trade</div>
+      ${best?`<div class="bw-val" style="color:var(--green)">${fmt(best.pnl)} $</div><div class="bw-meta">${best.pair} · ${best.date} · ${best.emotion}</div>`:`<div style="color:#2a3f5f;font-size:14px;margin-top:6px">—</div>`}
+    </div>
+    <div class="bw-card" style="border-color:#ff3b6b15">
+      <div class="stat-label">💀 Worst Trade</div>
+      ${worst?`<div class="bw-val" style="color:var(--red)">${fmt(worst.pnl)} $</div><div class="bw-meta">${worst.pair} · ${worst.date} · ${worst.emotion}</div>`:`<div style="color:#2a3f5f;font-size:14px;margin-top:6px">—</div>`}
+    </div>
+  </div>
+  <div class="sec-header">
+    <span class="sec-title">সাম্প্রতিক Trades</span>
+    ${trades.length?`<button class="filter-pill active" onclick="switchView('history')">সব দেখুন →</button>`:''}
+  </div>
+  ${trades.length===0
+    ?`<div class="empty"><div class="empty-icon">📓</div><div class="empty-text">এখনো কোনো trade নেই।<br/>প্রথম trade যোগ করুন!</div></div>`
+    :trades.slice(0,4).map((t,i)=>tcHTML(t,i)).join('')}`;
+}
+
+function sc(label,value,vc,acc,delay,candles,extra=''){
+  const cd=candles?`<div class="candle-deco">${candles.map(h=>`<div class="candle" style="height:${h/2}px"></div>`).join('')}</div>`:'';
+  return`<div class="stat-card" style="--acc:${acc};--vc:${vc};animation-delay:${delay}"><div class="stat-label">${label}</div><div class="stat-value">${value}</div>${extra}${cd}</div>`;
+}
+
+// ── Trade Card HTML ───────────────────────────────────────────
+function tcHTML(t,i){
+  const pnl=parseFloat(t.pnl);
+  const isWin=t.result==='Win',isLoss=t.result==='Loss';
+  const dc=isWin?'#00ffaa':isLoss?'#ff3b6b':'#f5c542';
+  const pc=pnl>=0?'#00ffaa':'#ff3b6b';
+  const open=openTradeId===t.id;
+  return`
+  <div class="trade-card" style="animation-delay:${i*.06}s">
+    <div class="trade-row" onclick="toggleCard(${t.id})">
+      <div class="trade-dot" style="background:${dc};box-shadow:0 0 8px ${dc}88"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span class="trade-pair">${t.pair}</span>
+          <span class="badge b-${t.market.toLowerCase()}">${t.market}</span>
+          <span class="badge b-${t.direction.toLowerCase()}">${t.direction}</span>
+        </div>
+        <div class="trade-meta">${t.date} · ${t.emotion}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="trade-pnl" style="color:${pc}">${fmt(t.pnl)}$</div>
+        <div class="trade-result" style="color:${dc}">${t.result}</div>
+      </div>
+      <div class="chevron ${open?'open':''}">▾</div>
+    </div>
+    ${open?`<div class="trade-detail">
+      <div class="detail-grid">
+        ${t.entryPrice?`<div class="dc"><div class="dc-label">Entry</div><div class="dc-val">${t.entryPrice}</div></div>`:''}
+        ${t.exitPrice?`<div class="dc"><div class="dc-label">Exit</div><div class="dc-val">${t.exitPrice}</div></div>`:''}
+        ${t.lotSize?`<div class="dc"><div class="dc-label">Lot/Amount</div><div class="dc-val">${t.lotSize}</div></div>`:''}
+        <div class="dc"><div class="dc-label">Market</div><div class="dc-val">${t.market}</div></div>
+      </div>
+      ${t.notes?`<div class="notes-box">💬 ${t.notes}</div>`:''}
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="act-btn btn-edit" onclick="startEdit(${t.id})">✏️ Edit</button>
+        <button class="act-btn btn-del" onclick="askDelete(${t.id})">🗑️ Delete</button>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+function toggleCard(id){
+  openTradeId=openTradeId===id?null:id;
+  if(currentView==='dashboard')renderDashboard();else renderHistory();
+}
+
+// ── Form ──────────────────────────────────────────────────────
+let formData={date:new Date().toISOString().slice(0,10),market:'Forex',pair:'',direction:'Buy',entryPrice:'',exitPrice:'',lotSize:'',result:'Win',pnl:'',emotion:'🧘 Calm',notes:''};
+
+function renderForm(){
+  const el=document.getElementById('view-add');
+  el.innerHTML=`
+  <div class="form-card">
+    <div class="form-title" style="background:linear-gradient(90deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${editId?'✏️ Trade Edit করুন':'➕ নতুন Trade'}</div>
+    <div class="form-grid">
+      <div><label class="fl">তারিখ</label><input class="fi" type="date" id="f-date" value="${formData.date}"></div>
+      <div><label class="fl">Market</label><select class="fs" id="f-market">${MARKETS.map(m=>`<option ${m===formData.market?'selected':''}>${m}</option>`).join('')}</select></div>
+      <div><label class="fl">Pair</label><input class="fi" list="pairs-list" id="f-pair" placeholder="EUR/USD বা BTC/USDT" value="${formData.pair}"><datalist id="pairs-list">${PAIRS.map(p=>`<option value="${p}">`).join('')}</datalist></div>
+      <div><label class="fl">Direction</label><select class="fs" id="f-direction"><option ${formData.direction==='Buy'?'selected':''}>Buy</option><option ${formData.direction==='Sell'?'selected':''}>Sell</option></select></div>
+      <div><label class="fl">Entry Price</label><input class="fi" type="number" id="f-entry" placeholder="1.0850" value="${formData.entryPrice}"></div>
+      <div><label class="fl">Exit Price</label><input class="fi" type="number" id="f-exit" placeholder="1.0920" value="${formData.exitPrice}"></div>
+      <div><label class="fl">Lot / Amount</label><input class="fi" type="number" id="f-lot" placeholder="0.1" value="${formData.lotSize}"></div>
+      <div><label class="fl">Result</label><select class="fs" id="f-result">${RESULTS.map(r=>`<option ${r===formData.result?'selected':''}>${r}</option>`).join('')}</select></div>
+      <div><label class="fl">P&amp;L ($)</label><input class="fi" type="number" id="f-pnl" placeholder="+50 বা -30" value="${formData.pnl}"></div>
+      <div><label class="fl">Emotional State</label><select class="fs" id="f-emotion">${EMOTIONS.map(e=>`<option ${e===formData.emotion?'selected':''}>${e}</option>`).join('')}</select></div>
+    </div>
+    <div style="margin-top:16px"><label class="fl">Notes / কারণ</label>
+      <textarea class="ft" id="f-notes" placeholder="কেন এই trade? কী শিখলেন?">${formData.notes}</textarea>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="submit-btn" onclick="submitForm()">${editId?'✅ Update করুন':'✅ Save করুন'}</button>
+      <button class="cancel-btn" onclick="cancelForm()">বাতিল</button>
+    </div>
+  </div>`;
+}
+
+function submitForm(){
+  const pair=document.getElementById('f-pair').value.trim();
+  const entry=document.getElementById('f-entry').value.trim();
+  if(!pair||!entry){toast('⚠️ Pair ও Entry Price দিন');return;}
+  const trade={
+    date:document.getElementById('f-date').value,market:document.getElementById('f-market').value,
+    pair,direction:document.getElementById('f-direction').value,entryPrice:entry,
+    exitPrice:document.getElementById('f-exit').value,lotSize:document.getElementById('f-lot').value,
+    result:document.getElementById('f-result').value,pnl:document.getElementById('f-pnl').value,
+    emotion:document.getElementById('f-emotion').value,notes:document.getElementById('f-notes').value,
+  };
+  if(editId!==null){trades=trades.map(t=>t.id===editId?{...trade,id:editId}:t);editId=null;}
+  else{trade.id=Date.now();trades=[trade,...trades];}
+  saveToSheets().then(()=>{
+    toast(SHEET_URL?'✅ Google Sheets এ save হয়েছে!':'✅ Trade save হয়েছে');
+  });
+  formData={...trade,date:new Date().toISOString().slice(0,10),pair:'',entryPrice:'',exitPrice:'',lotSize:'',pnl:'',notes:''};
+  switchView('history');
+}
+
+function cancelForm(){editId=null;switchView('history');}
+function startEdit(id){
+  const t=trades.find(x=>x.id===id);if(!t)return;
+  formData={...t};editId=id;openTradeId=null;
+  document.querySelectorAll('.nav-btn').forEach(b=>{if(b.dataset.view==='add')b.textContent='✎ Edit';});
+  switchView('add');
+}
+
+// ── History ───────────────────────────────────────────────────
+function renderHistory(){
+  const el=document.getElementById('view-history');
+  const filtered=filterMarket==='All'?trades:trades.filter(t=>t.market===filterMarket);
+  el.innerHTML=`
+  <div class="sec-header" style="margin-bottom:16px">
+    <span class="sec-title">Trade History (${filtered.length})</span>
+    <div style="display:flex;gap:6px">
+      ${['All','Forex','Crypto'].map(m=>`<button class="filter-pill ${filterMarket===m?'active':''}" onclick="setFilter('${m}')">${m}</button>`).join('')}
+    </div>
+  </div>
+  ${filtered.length===0
+    ?`<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">কোনো trade পাওয়া যায়নি</div></div>`
+    :filtered.map((t,i)=>tcHTML(t,i)).join('')}`;
+}
+function setFilter(m){filterMarket=m;renderHistory();}
+
+// ── Delete ────────────────────────────────────────────────────
+function askDelete(id){deleteTarget=id;document.getElementById('del-modal').style.display='flex';}
+function closeModal(){document.getElementById('del-modal').style.display='none';deleteTarget=null;}
+function confirmDelete(){
+  if(deleteTarget===null)return;
+  trades=trades.filter(t=>t.id!==deleteTarget);
+  openTradeId=null;closeModal();
+  saveToSheets().then(()=>toast('🗑️ Trade মুছে গেছে'));
+  if(currentView==='dashboard')renderDashboard();else renderHistory();
+}
+
+// ── Init ──────────────────────────────────────────────────────
+(async()=>{
+  try{const s=localStorage.getItem('tj_trades_v2');if(s)trades=JSON.parse(s);}catch(e){}
+  if(SHEET_URL){
+    setSyncStatus('syncing','Connecting...');
+    await loadFromSheets();
+  }
+  switchView('dashboard');
+})();
+</script>
+</body>
+</html>
