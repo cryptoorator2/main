@@ -1,0 +1,1887 @@
+/* ============================================================
+   GOOGLE FONTS & COLOR VARIABLES (Light Liquid Glass theme)
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Outfit:wght@200;300;400;600;800&display=swap');
+
+:root {
+  --bg-deep: #060913; /* Deep space dark */
+  --bg-space: #02040a;
+  
+  /* Vibrant Accent Colors (adjusted for high contrast on dark) */
+  --gold: #f59e0b; /* Amber-500 */
+  --gold-glow: rgba(245, 158, 11, 0.25);
+  --gold-dim: rgba(245, 158, 11, 0.08);
+  
+  --cyan: #06b6d4; /* Cyan-500 */
+  --cyan-glow: rgba(6, 182, 212, 0.25);
+  
+  --purple: #8b5cf6; /* Violet-500 */
+  --purple-glow: rgba(139, 92, 246, 0.2);
+  
+  --green: #10b981; /* Emerald-500 */
+  --red: #ef4444; /* Red-500 */
+  
+  /* Frosted Dark Liquid Glass Tokens */
+  --glass-bg: rgba(13, 19, 33, 0.52);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-hover: rgba(255, 255, 255, 0.18);
+  
+  --text-main: #f8fafc; /* Slate-50 (Near white) */
+  --text-muted: #94a3b8; /* Slate-400 */
+  --text-dark: #64748b; /* Slate-500 */
+  
+  --nav-h: 70px;
+}
+
+/* ============================================================
+   GLOBAL & RESET
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  background-color: var(--bg-deep);
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 99, 235, 0.4);
+}
+
+/* ============================================================
+   FLUID BACKGROUND & ANIMATED LIQUID BLOBS
+   ============================================================ */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background: #060913;
+  pointer-events: none;
+}
+
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.8;
+}
+
+/* 3D Liquid mesh background generator blobs */
+.fluid-blob-container {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  filter: blur(95px);
+  pointer-events: none;
+}
+
+.fluid-blob {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.22;
+  mix-blend-mode: screen;
+  animation: float-blob 28s infinite alternate ease-in-out;
+}
+
+.blob-1 { width: 650px; height: 650px; background: #1e3a8a; left: -10%; top: -10%; animation-delay: 0s; }
+.blob-2 { width: 500px; height: 500px; background: #581c87; right: -5%; top: 10%; animation-delay: 6s; }
+.blob-3 { width: 550px; height: 550px; background: #701a75; left: 15%; bottom: -10%; animation-delay: 12s; }
+.blob-4 { width: 450px; height: 450px; background: #155e75; right: 15%; bottom: 10%; animation-delay: 18s; }
+
+@keyframes float-blob {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(120px, 80px) scale(1.15); }
+  66% { transform: translate(-60px, 130px) scale(0.9); }
+  100% { transform: translate(50px, -70px) scale(1.05); }
+}
+
+/* ============================================================
+   FROSTED BLACK LIQUID GLASS CLASS SYSTEM (Obsidian Glass)
+   ============================================================ */
+.liquid-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.08),
+    0 15px 35px rgba(0, 0, 0, 0.35);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  z-index: 1;
+}
+
+/* Slow animated color blobs moving behind cards */
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: -60%;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.04) 0%, transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.02) 0%, transparent 35%);
+  filter: blur(30px);
+  animation: liquid-swim 14s ease-in-out infinite alternate;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes liquid-swim {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(10%, 5%) rotate(180deg); }
+  100% { transform: translate(-5%, -8%) rotate(360deg); }
+}
+
+/* Mouse coords spotlights */
+.liquid-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle 150px at var(--mx, 0px) var(--my, 0px),
+    rgba(255, 255, 255, 0.08),
+    transparent 80%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-glass:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: 
+    inset 0 1.5px 3px rgba(255, 255, 255, 0.15),
+    0 22px 45px rgba(0, 0, 0, 0.5);
+}
+
+/* Bevel glowing effect on hover */
+@keyframes edge-glow {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.09); }
+  50% { border-color: rgba(6, 182, 212, 0.22); }
+}
+.liquid-glass {
+  animation: edge-glow 8s infinite ease-in-out;
+}
+
+/* ============================================================
+   CUSTOM FLUID MOUSE CURSOR
+   ============================================================ */
+.fluid-cursor {
+  position: fixed;
+  width: 14px;
+  height: 14px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition: transform 0.1s ease;
+}
+
+.fluid-cursor-ring {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s, border-color 0.2s;
+}
+
+/* ============================================================
+   TYPOGRAPHY & UTILITIES
+   ============================================================ */
+.orbitron-title {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.tech-mono {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+.text-accent-gold { color: var(--gold); }
+.text-accent-cyan { color: var(--cyan); }
+.text-accent-purple { color: var(--purple); }
+
+/* Section headings */
+.section-heading-container {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--cyan);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.section-eyebrow::before {
+  content: '✦';
+}
+.section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--text-main);
+}
+.section-divider {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  margin: 1rem auto 0;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
+  box-shadow: 0 4px 20px rgba(31, 41, 55, 0.03);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  color: var(--cyan);
+}
+
+.brand-icon-box {
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid var(--cyan);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.15);
+  background: rgba(2, 132, 199, 0.05);
+  transition: all 0.3s ease;
+}
+.brand-icon-box svg {
+  width: 20px;
+  height: 20px;
+}
+.brand:hover .brand-icon-box {
+  transform: rotate(15deg) scale(1.05);
+  box-shadow: 0 0 20px rgba(2, 132, 199, 0.3);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 2rem;
+}
+
+.nav-link-item a {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  position: relative;
+  padding: 8px 0;
+}
+
+.nav-link-item a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background: var(--cyan);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.nav-link-item a:hover {
+  color: var(--text-main);
+}
+.nav-link-item a:hover::after {
+  width: 100%;
+}
+
+.nav-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hud-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border: 1.5px solid;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+}
+.hud-btn.sound-off { color: var(--red); border-color: rgba(220, 38, 38, 0.3); }
+.hud-btn.sound-off:hover { background: rgba(220, 38, 38, 0.08); border-color: var(--red); }
+.hud-btn.sound-on { color: var(--green); border-color: rgba(5, 150, 105, 0.3); }
+.hud-btn.sound-on:hover { background: rgba(5, 150, 105, 0.08); border-color: var(--green); }
+
+.cta-button {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--cyan);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(2, 132, 199, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.1em;
+}
+
+.cta-button:hover {
+  background: var(--text-main);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(30, 41, 59, 0.25);
+}
+
+.mobile-toggle {
+  display: none;
+  cursor: pointer;
+}
+
+/* ============================================================
+   TICKER (Live pricing bar)
+   ============================================================ */
+.ticker-container {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  height: 36px;
+  z-index: 999;
+  background: rgba(9, 13, 22, 0.75);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.20);
+}
+
+.ticker-track {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: ticker-slide 30s linear infinite;
+  width: max-content;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  border-right: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.ticker-symbol {
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.ticker-price {
+  color: var(--text-main);
+}
+
+.ticker-change {
+  font-weight: 600;
+}
+.ticker-change.up { color: var(--green); }
+.ticker-change.down { color: var(--red); }
+
+@keyframes ticker-slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   SITE CONTENT WRAPPER
+   ============================================================ */
+.content-wrapper {
+  margin-top: calc(var(--nav-h) + 36px);
+  position: relative;
+  z-index: 10;
+}
+
+.section-padding {
+  padding: 6rem 4rem;
+}
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
+.hero-section {
+  min-height: calc(100vh - var(--nav-h) - 36px);
+  display: flex;
+  align-items: center;
+  padding: 2rem 4rem;
+  position: relative;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 3rem;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-text-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--cyan);
+  letter-spacing: 0.2em;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
+}
+
+.hero-title .glow-text {
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+}
+
+.hero-desc {
+  font-size: 1.05rem;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.btn-primary {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #fff;
+  background: var(--cyan);
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(2, 132, 199, 0.25);
+}
+.btn-primary:hover {
+  background: var(--text-main);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(30, 41, 59, 0.35);
+}
+
+.btn-secondary {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+  background: rgba(2, 132, 199, 0.02);
+  border: 1px solid var(--cyan);
+  padding: 14px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+  background: rgba(2, 132, 199, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Stats Cards in Hero */
+.hero-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 580px;
+}
+
+.stat-card {
+  padding: 1.25rem;
+}
+
+.stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.4rem;
+  color: var(--cyan);
+  margin-bottom: 0.2rem;
+}
+
+.stat-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--green);
+}
+
+/* Right side 3D container */
+.hero-canvas-container {
+  height: 480px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#hero-3d-canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+
+
+/* ============================================================
+   3D UNIVERSE (GALAXY) SECTION
+   ============================================================ */
+.universe-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.universe-container {
+  width: 100%;
+  height: 620px;
+  position: relative;
+}
+
+#universe-3d-canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.universe-helper-text {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* 3D Glass Tooltip in Universe */
+.universe-tooltip {
+  position: absolute;
+  display: none;
+  z-index: 20;
+  width: 180px;
+  pointer-events: none;
+  padding: 12px;
+  transform: translate(-50%, -105%);
+}
+
+.tooltip-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.tooltip-pair {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.tooltip-price {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+/* ============================================================
+   LIVE PRICES SECTION
+   ============================================================ */
+.prices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.price-card {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 200px;
+}
+
+.price-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.coin-logo-ring {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.coin-inner-sym {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.coin-logo-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+/* Brand logo colors */
+.coin-logo-ring.btc { border-color: #f7931a; color: #f7931a; }
+.coin-logo-ring.eth { border-color: #627eea; color: #627eea; }
+.coin-logo-ring.bnb { border-color: var(--gold); color: var(--gold); }
+.coin-logo-ring.sol { border-color: #00ffa3; color: #059669; }
+.coin-logo-ring.xrp { border-color: #00aae4; color: #00aae4; }
+
+.change-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.change-badge.up {
+  background: rgba(5, 150, 105, 0.08);
+  color: var(--green);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+}
+.change-badge.down {
+  background: rgba(220, 38, 38, 0.08);
+  color: var(--red);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.coin-details {
+  margin-bottom: 0.5rem;
+}
+
+.coin-name {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.coin-pair {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.coin-current-price {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.15rem;
+  transition: color 0.3s ease;
+}
+
+.coin-percent-chg {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  margin-bottom: 1rem;
+}
+.coin-percent-chg.up { color: var(--green); }
+.coin-percent-chg.down { color: var(--red); }
+
+/* Real-time Canvas Sparkline */
+.sparkline-canvas {
+  width: 100%;
+  height: 45px;
+  margin-top: auto;
+}
+
+.stream-status-text {
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+}
+.status-dot.active {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ============================================================
+   SYSTEM DIAGNOSTICS & PINGS
+   ============================================================ */
+.diagnostics-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.diag-card {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.diag-panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text-main);
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+/* Speedometer Dial gauge */
+.speedometer-container {
+  position: relative;
+  width: 160px;
+  height: 110px;
+  margin: 10px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.speedometer-dial-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.speedometer-needle-pivot {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  width: 2px;
+  height: 42px;
+  background: var(--cyan);
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(-90deg); /* Min */
+  box-shadow: 0 0 8px var(--cyan-glow);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.speedometer-needle-pivot::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyan);
+}
+
+.speedometer-hud-text {
+  position: absolute;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#speed-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1;
+}
+.speed-unit {
+  font-size: 0.52rem;
+  color: var(--text-muted);
+}
+
+.diagnostics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.72rem;
+  margin-bottom: 14px;
+}
+.diag-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+  padding-bottom: 5px;
+}
+.diag-lbl { color: var(--text-muted); }
+.diag-val { color: var(--text-main); font-weight: 700; }
+
+/* Mini Logger embedded console (Frosted light panel) */
+.diag-mini-console {
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.25);
+  border-radius: 8px;
+  padding: 8px;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+}
+.console-header {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 3px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.console-lines {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #f1f5f9; /* Slate 100 for high readability on dark */
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ============================================================
+   ABOUT SECTION
+   ============================================================ */
+.about-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.about-visual {
+  height: 440px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-liquid-orb {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.1) 0%, transparent 70%);
+  border: 1px solid rgba(2, 132, 199, 0.15);
+  box-shadow: 0 0 30px rgba(2, 132, 199, 0.05);
+  animation: about-orb-pulsate 6s ease-in-out infinite;
+}
+
+@keyframes about-orb-pulsate {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  50% { transform: scale(1.08) rotate(180deg); opacity: 1; }
+}
+
+.about-center-card {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.about-center-card h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--cyan);
+}
+.about-center-card span {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.about-btc-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.4));
+  margin-bottom: 8px;
+}
+
+/* Floating Concepts Tags */
+.concept-tag {
+  position: absolute;
+  padding: 8px 14px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--cyan);
+  border-radius: 30px;
+  box-shadow: 0 5px 15px rgba(31,41,55,0.04);
+  animation: float-tag 6s ease-in-out infinite;
+}
+
+.concept-tag:nth-child(1) { top: 12%; left: 8%; animation-delay: 0s; }
+.concept-tag:nth-child(2) { top: 22%; right: 4%; animation-delay: 1.5s; }
+.concept-tag:nth-child(3) { bottom: 26%; left: 4%; animation-delay: 3s; }
+.concept-tag:nth-child(4) { bottom: 12%; right: 8%; animation-delay: 4.5s; }
+.concept-tag:nth-child(5) { top: 60%; left: 2%; animation-delay: 2s; }
+
+@keyframes float-tag {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.about-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-heading {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1.3;
+  color: var(--text-main);
+  margin-bottom: 1.25rem;
+}
+
+.about-heading span {
+  color: var(--cyan);
+}
+
+.about-text {
+  color: var(--text-muted);
+  line-height: 1.75;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.feature-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.feature-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(2, 132, 199, 0.05);
+  border: 1px solid rgba(2, 132, 199, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.feature-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.feature-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   STRATEGIES SECTION
+   ============================================================ */
+.strategies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.strategy-card {
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.strategy-number {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  color: var(--cyan);
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+.strategy-icon {
+  font-size: 1.8rem;
+  margin-bottom: 1.25rem;
+}
+
+.strategy-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+}
+
+.strategy-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.strategy-tag {
+  align-self: flex-start;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--cyan);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-top: auto;
+  background: rgba(2, 132, 199, 0.01);
+}
+
+/* ============================================================
+   CONNECT SECTION
+   ============================================================ */
+.connect-container {
+  padding: 4.5rem;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.connect-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(2, 132, 199, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2, 132, 199, 0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center;
+  animation: grid-slide 10s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes grid-slide {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+.connect-blob {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.05) 0%, transparent 70%);
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.connect-heading {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  font-weight: 900;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+.connect-heading span {
+  color: var(--cyan);
+}
+
+.connect-description {
+  color: var(--text-muted);
+  max-width: 500px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+.socials-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 750px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.social-button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 1.2rem;
+  border: 1px solid rgba(0,0,0,0.03);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.35);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.social-button:hover {
+  transform: translateY(-4px);
+}
+
+.social-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-icon-wrapper svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Button style differences */
+.social-button.telegram { border-color: rgba(0, 136, 204, 0.2); }
+.social-button.telegram .social-icon-wrapper { background: rgba(0, 136, 204, 0.08); }
+.social-button.telegram:hover {
+  border-color: #0088cc;
+  box-shadow: 0 8px 30px rgba(0, 136, 204, 0.12);
+}
+
+.social-button.twitter { border-color: rgba(0,0,0, 0.05); }
+.social-button.twitter .social-icon-wrapper { background: rgba(0,0,0, 0.03); }
+.social-button.twitter:hover {
+  border-color: #000;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.social-button.discord { border-color: rgba(114, 137, 218, 0.2); }
+.social-button.discord .social-icon-wrapper { background: rgba(114, 137, 218, 0.08); }
+.social-button.discord:hover {
+  border-color: #7289da;
+  box-shadow: 0 8px 30px rgba(114, 137, 218, 0.12);
+}
+
+.social-text {
+  text-align: left;
+}
+
+.social-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.social-handle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.social-arrow {
+  margin-left: auto;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1rem;
+  color: var(--text-dark);
+}
+.social-button:hover .social-arrow {
+  color: var(--cyan);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.02);
+  padding: 2rem 4rem;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.footer-logo {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: var(--cyan);
+  letter-spacing: 0.1em;
+}
+
+.footer-copyright {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.footer-disclaimer {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dark);
+  max-width: 350px;
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN (Media Queries)
+   ============================================================ */
+@media (max-width: 1200px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 4rem;
+  }
+  .hero-text-content {
+    align-items: center;
+  }
+  .hero-desc {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-buttons {
+    justify-content: center;
+  }
+  .hero-stats-row {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-canvas-container {
+    height: 380px;
+    order: -1; /* Display 3D Orb on top on smaller screens */
+  }
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .about-visual {
+    height: 320px;
+  }
+  .diagnostics-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar {
+    padding: 0 2rem;
+  }
+  .section-padding {
+    padding: 4rem 2rem;
+  }
+  .socials-row {
+    grid-template-columns: 1fr;
+    max-width: 380px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 1.5rem;
+  }
+  .nav-links {
+    display: none;
+  }
+  .mobile-toggle {
+    display: block;
+    color: var(--cyan);
+    font-size: 1.5rem;
+  }
+  .section-padding {
+    padding: 3.5rem 1.5rem;
+  }
+  .hero-section {
+    padding: 1rem 1.5rem;
+  }
+  .hero-stats-row {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer-disclaimer {
+    text-align: center;
+    max-width: 100%;
+  }
+  .connect-container {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+/* ============================================================
+   FLOATING PARALLAX GLASS ASSETS
+   ============================================================ */
+.glass-parallax-asset {
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  transition: transform 0.2s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+.glass-parallax-asset::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.asset-sphere {
+  width: 120px;
+  height: 120px;
+}
+.asset-sphere::before {
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.15) 0%, rgba(6, 182, 212, 0.05) 50%, rgba(139, 92, 246, 0.12) 100%);
+  animation: float-sphere 8s infinite alternate ease-in-out;
+}
+
+.asset-torus {
+  width: 140px;
+  height: 140px;
+}
+.asset-torus::before {
+  border-radius: 50%;
+  border: 28px solid rgba(255, 255, 255, 0.07);
+  background: transparent;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.2),
+    inset 0 10px 20px rgba(255, 255, 255, 0.1),
+    inset 0 -10px 20px rgba(6, 182, 212, 0.05);
+  backdrop-filter: blur(10px);
+  animation: float-torus 10s infinite alternate ease-in-out;
+}
+
+.asset-ring {
+  width: 100px;
+  height: 100px;
+}
+.asset-ring::before {
+  border-radius: 50%;
+  border: 6px solid rgba(6, 182, 212, 0.25);
+  background: transparent;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(6, 182, 212, 0.08);
+  animation: float-ring 7s infinite alternate ease-in-out;
+}
+
+.asset-cube {
+  width: 90px;
+  height: 90px;
+}
+.asset-cube::before {
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  animation: float-cube 9s infinite alternate ease-in-out;
+}
+
+@keyframes float-sphere {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  100% { transform: translateY(-22px) rotate(15deg) scale(1.04); }
+}
+@keyframes float-torus {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(28px) rotate(-22deg); }
+}
+@keyframes float-ring {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-18px) scale(1.08); }
+}
+@keyframes float-cube {
+  0% { transform: rotate(25deg) translateY(0); }
+  100% { transform: rotate(45deg) translateY(-25px); }
+}
+
+/* ============================================================
+   3D PARALLAX TILT EFFECTS
+   ============================================================ */
+.tilt-card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.15s ease-out, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.tilt-card * {
+  transform-style: preserve-3d;
+}
+
+/* Push child elements out on hover/tilt */
+.tilt-card:hover .strategy-icon,
+.tilt-card:hover .coin-logo-ring,
+.tilt-card:hover .price-card-header,
+.tilt-card:hover .strategy-title,
+.tilt-card:hover .coin-details,
+.tilt-card:hover .coin-current-price,
+.tilt-card:hover .stat-value,
+.tilt-card:hover .speedometer-container {
+  transform: translateZ(40px);
+  transition: transform 0.15s ease-out;
+}
+
+.tilt-card:hover .strategy-desc,
+.tilt-card:hover .coin-percent-chg,
+.tilt-card:hover .sparkline-canvas,
+.tilt-card:hover .stat-label,
+.tilt-card:hover .diag-panel-title,
+.tilt-card:hover .diagnostics-list,
+.tilt-card:hover .diag-mini-console,
+.tilt-card:hover #speed-test-btn {
+  transform: translateZ(20px);
+  transition: transform 0.15s ease-out;
+}
+
+/* ============================================================
+   ASIC MINING GRID LAYOUT STYLING
+   ============================================================ */
+.mining-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 2rem;
+  width: 100%;
+  height: 560px;
+  position: relative;
+}
+
+.mining-dashboard {
+  height: 100%;
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.mining-visualizer-frame {
+  height: 100%;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#universe-3d-canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+}
+
+.mining-visualizer-frame .universe-helper-text {
+  bottom: 15px;
+}
+
+/* Responsiveness */
+@media (max-width: 992px) {
+  .mining-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .mining-visualizer-frame {
+    height: 400px;
+  }
+}
+
+/* ============================================================
+   PRELOADER STYLING
+   ============================================================ */
+.preloader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #060913;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+}
+
+.preloader-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.preloader-candles {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 80px;
+}
+
+.preloader-candle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 14px;
+  height: 100%;
+  justify-content: center;
+}
+
+.preloader-candle .preloader-body {
+  width: 14px;
+  height: 30px;
+  border-radius: 3px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  animation: preloader-body-grow 2s infinite ease-in-out alternate;
+  animation-delay: inherit; /* inherit staggered delays from parent .preloader-candle */
+}
+
+.preloader-candle.green {
+  animation: preloader-rise 2s infinite ease-in-out alternate;
+}
+
+.preloader-candle.red {
+  animation: preloader-fall 2s infinite ease-in-out alternate;
+}
+
+.preloader-candle.green .preloader-body {
+  background: var(--green);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.preloader-candle.red .preloader-body {
+  background: var(--red);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.preloader-candle .preloader-wick {
+  width: 2px;
+  height: 55px;
+  position: absolute;
+  z-index: -1;
+}
+
+.preloader-candle.green .preloader-wick {
+  background: var(--green);
+}
+
+.preloader-candle.red .preloader-wick {
+  background: var(--red);
+}
+
+@keyframes preloader-rise {
+  0% {
+    transform: translateY(16px);
+  }
+  100% {
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes preloader-fall {
+  0% {
+    transform: translateY(-16px);
+  }
+  100% {
+    transform: translateY(16px);
+  }
+}
+
+@keyframes preloader-body-grow {
+  0% {
+    height: 14px;
+  }
+  100% {
+    height: 44px;
+  }
+}
+
+.preloader-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.6rem;
+  color: #f8fafc;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.preloader-subtitle {
+  font-size: 0.75rem;
+  color: var(--cyan);
+  letter-spacing: 0.2em;
+  animation: pulse-opacity 1.5s infinite ease-in-out alternate;
+}
+
+@keyframes pulse-opacity {
+  0% { opacity: 0.3; }
+  100% { opacity: 1.0; }
+}
+
+/* ============================================================
+   HUD DEV WARNING TOAST NOTIFICATION
+   ============================================================ */
+.hud-notification {
+  position: fixed;
+  top: calc(var(--nav-h) + 20px);
+  right: -340px; /* Hidden offscreen initially */
+  width: 310px;
+  z-index: 9999;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3) !important; /* Amber-500 dim warning border */
+  transition: right 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+.hud-notification.show {
+  right: 20px;
+}
+
+.notification-glow-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  animation: glow-scan 3s linear infinite;
+}
+
+@keyframes glow-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.notification-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.notification-close:hover {
+  color: var(--gold);
+}
+
+.notification-body {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
