@@ -1,1190 +1,602 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRYPTO ORATOR — Master the Market</title>
-
-<!-- Bootstrap 5 -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-/* ============================================================
-   ROOT VARIABLES
-============================================================ */
-:root {
-  --gold: #f0b90b;
-  --gold-dim: #c99a08;
-  --green: #0ecb81;
-  --red: #f6465d;
-  --dark: #04080f;
-  --dark2: #080d17;
-  --panel: rgba(255,255,255,0.03);
-  --border: rgba(240,185,11,0.13);
-  --border2: rgba(240,185,11,0.28);
-  --text: #dde1ea;
-  --muted: #5a6478;
-  --nav-h: 62px;
-}
-
-/* ============================================================
-   GLOBAL
-============================================================ */
-*, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-body {
-  background: var(--dark);
-  color: var(--text);
-  font-family: 'Rajdhani', sans-serif;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-a { -webkit-tap-highlight-color: transparent; }
-
-/* ============================================================
-   BACKGROUND LAYERS
-============================================================ */
-#bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-.grid-bg {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image:
-    linear-gradient(rgba(240,185,11,.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(240,185,11,.022) 1px, transparent 1px);
-  background-size: 44px 44px;
-}
-.scanline {
-  position: fixed; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(240,185,11,.25), transparent);
-  z-index: 9990; animation: scan 10s linear infinite; pointer-events: none;
-}
-@keyframes scan {
-  0% { top: 0; opacity: 1; }
-  96% { opacity: .4; }
-  100% { top: 100vh; opacity: 0; }
-}
-body::after {
-  content: ''; position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 9985; opacity: .5;
-}
-
-/* ============================================================
-   CURSOR (desktop)
-============================================================ */
-.cursor, .cursor-ring { display: none; }
-@media (pointer: fine) {
-  body { cursor: none; }
-  .cursor {
-    display: block; position: fixed; width: 10px; height: 10px;
-    background: var(--gold); border-radius: 50%; pointer-events: none;
-    z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: difference;
-  }
-  .cursor-ring {
-    display: block; position: fixed; width: 36px; height: 36px;
-    border: 1.5px solid rgba(240,185,11,.7); border-radius: 50%;
-    pointer-events: none; z-index: 9998; transform: translate(-50%,-50%);
-    transition: all .14s ease;
-  }
-}
-
-/* ============================================================
-   TICKER
-============================================================ */
-.ticker-wrap {
-  position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 1020;
-  background: rgba(4,8,15,.97); border-bottom: 1px solid var(--border);
-  overflow: hidden; height: 32px;
-}
-.ticker-track {
-  display: flex; align-items: center; height: 100%;
-  animation: tickscroll 25s linear infinite; white-space: nowrap; width: max-content;
-}
-@keyframes tickscroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-.ticker-item {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 0 18px; font-family: 'Share Tech Mono', monospace;
-  font-size: .68rem; border-right: 1px solid var(--border);
-}
-.t-sym { color: var(--gold); font-weight: 700; }
-.t-chg.up { color: var(--green); }
-.t-chg.dn { color: var(--red); }
-
-/* ============================================================
-   NAVBAR (Bootstrap override)
-============================================================ */
-.navbar {
-  height: var(--nav-h);
-  background: rgba(4,8,15,.95) !important;
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 1rem;
-}
-.navbar-brand {
-  font-family: 'Orbitron', monospace;
-  font-weight: 900; font-size: .82rem;
-  color: var(--gold) !important;
-  letter-spacing: .1em; display: flex; align-items: center; gap: 9px;
-}
-.brand-icon {
-  width: 30px; height: 30px; border: 2px solid var(--gold);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; animation: logopulse 3s ease-in-out infinite;
-}
-.brand-icon svg { width: 16px; height: 16px; }
-@keyframes logopulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(240,185,11,.3); }
-  50% { box-shadow: 0 0 0 6px rgba(240,185,11,0); }
-}
-.navbar-toggler {
-  border: 1px solid rgba(240,185,11,.4);
-  padding: 6px 8px; color: var(--gold);
-}
-.navbar-toggler:focus { box-shadow: 0 0 0 3px rgba(240,185,11,.15); }
-.navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23f0b90b' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-}
-.navbar-nav .nav-link {
-  font-family: 'Rajdhani', sans-serif; font-weight: 600;
-  font-size: .78rem; color: var(--muted) !important;
-  letter-spacing: .1em; text-transform: uppercase;
-  transition: color .3s; padding: .5rem .9rem;
-  position: relative;
-}
-.navbar-nav .nav-link::after {
-  content: ''; position: absolute; bottom: 0; left: .9rem;
-  width: 0; height: 1px; background: var(--gold); transition: width .3s;
-}
-.navbar-nav .nav-link:hover { color: var(--gold) !important; }
-.navbar-nav .nav-link:hover::after { width: calc(100% - 1.8rem); }
-.nav-cta-btn {
-  font-family: 'Orbitron', monospace; font-size: .6rem; font-weight: 700;
-  letter-spacing: .1em; color: var(--dark) !important; background: var(--gold);
-  border: none; padding: 7px 16px; text-decoration: none;
-  clip-path: polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%);
-  transition: all .3s; white-space: nowrap;
-}
-.nav-cta-btn:hover { background: #fff; }
-/* Mobile collapse menu */
-.navbar-collapse {
-  background: rgba(4,8,15,.99);
-  border-bottom: 1px solid var(--border);
-}
-.navbar-collapse .navbar-nav { padding: .5rem 1rem 1rem; }
-.navbar-collapse .nav-link { padding: .85rem 1rem; border-bottom: 1px solid rgba(240,185,11,.05); }
-.navbar-collapse .nav-link:last-child { border-bottom: none; }
-.navbar-collapse .nav-cta-btn {
-  display: block; text-align: center; margin: 1rem;
-  clip-path: none; padding: 12px; font-size: .7rem;
-}
-
-/* ============================================================
-   WRAPPER
-============================================================ */
-.site-wrapper { position: relative; z-index: 10; padding-top: calc(var(--nav-h) + 32px); }
-
-/* ============================================================
-   COMMON SECTION
-============================================================ */
-.section-pad { padding: 70px 0; }
-@media (min-width: 992px) { .section-pad { padding: 100px 0; } }
-
-.sec-eyebrow {
-  font-family: 'Share Tech Mono', monospace; font-size: .6rem;
-  color: var(--gold); letter-spacing: .22em; text-transform: uppercase;
-  display: block; margin-bottom: 10px;
-}
-.sec-heading {
-  font-family: 'Orbitron', monospace; font-weight: 900;
-  font-size: clamp(1.5rem, 5vw, 2.6rem); color: #fff;
-}
-.sec-heading span { color: var(--gold); }
-.sec-divider {
-  width: 48px; height: 2px; margin: 14px auto 0;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-.live-dot {
-  display: inline-block; width: 6px; height: 6px;
-  background: var(--green); border-radius: 50%;
-  margin-right: 5px; animation: blink 1s ease-in-out infinite;
-}
-@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .15; } }
-
-/* ============================================================
-   REVEAL ANIMATION
-============================================================ */
-.reveal {
-  opacity: 0; transform: translateY(28px);
-  transition: opacity .75s cubic-bezier(.16,1,.3,1), transform .75s cubic-bezier(.16,1,.3,1);
-}
-.reveal.visible { opacity: 1; transform: translateY(0); }
-.rd1 { transition-delay: .07s; }
-.rd2 { transition-delay: .14s; }
-.rd3 { transition-delay: .21s; }
-.rd4 { transition-delay: .28s; }
-.rd5 { transition-delay: .35s; }
-
-/* ============================================================
-   HERO
-============================================================ */
-.hero-section {
-  min-height: 100svh;
-  display: flex; align-items: center;
-  position: relative; overflow: hidden;
-  padding: 40px 0 60px;
-}
-.hero-tag {
-  font-family: 'Share Tech Mono', monospace; font-size: .6rem;
-  color: var(--gold); letter-spacing: .18em; text-transform: uppercase;
-  display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
-  opacity: 0; animation: fadeUp .8s .2s forwards;
-}
-.hero-tag::before { content: ''; width: 24px; height: 1px; background: var(--gold); flex-shrink: 0; }
-.hero-h1 {
-  font-family: 'Orbitron', monospace; font-weight: 900;
-  font-size: clamp(2.2rem, 9vw, 4.8rem); line-height: 1.05;
-  color: #fff; margin-bottom: 16px;
-  opacity: 0; animation: fadeUp .8s .4s forwards;
-}
-.hero-h1 .accent { color: var(--gold); position: relative; }
-.hero-h1 .accent::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-  height: 3px; background: linear-gradient(90deg, var(--gold), transparent);
-}
-.hero-sub {
-  font-size: 1rem; font-weight: 300; color: var(--muted);
-  line-height: 1.8; margin-bottom: 32px;
-  opacity: 0; animation: fadeUp .8s .6s forwards;
-}
-.hero-btns {
-  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 36px;
-  opacity: 0; animation: fadeUp .8s .8s forwards;
-}
-.btn-co-gold {
-  font-family: 'Orbitron', monospace; font-size: .62rem; font-weight: 700;
-  letter-spacing: .1em; color: var(--dark) !important; background: var(--gold);
-  border: none; padding: 12px 24px; text-decoration: none;
-  clip-path: polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%);
-  transition: all .3s; position: relative; overflow: hidden; display: inline-block;
-}
-.btn-co-gold::before {
-  content: ''; position: absolute; inset: 0;
-  background: rgba(255,255,255,.2); transform: translateX(-100%) skewX(-15deg);
-  transition: transform .4s;
-}
-.btn-co-gold:hover::before { transform: translateX(200%) skewX(-15deg); }
-.btn-co-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,185,11,.35); }
-.btn-co-outline {
-  font-family: 'Orbitron', monospace; font-size: .62rem; font-weight: 700;
-  letter-spacing: .1em; color: var(--gold) !important; background: transparent;
-  border: 1px solid var(--gold); padding: 12px 24px; text-decoration: none;
-  clip-path: polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%);
-  transition: all .3s; display: inline-block;
-}
-.btn-co-outline:hover { background: rgba(240,185,11,.08); transform: translateY(-2px); }
-
-/* Hero stat cards */
-.hero-stat-card {
-  background: var(--panel); border: 1px solid var(--border);
-  padding: 14px 16px; position: relative; overflow: hidden; height: 100%;
-  opacity: 0; animation: fadeUp .8s 1s forwards;
-}
-.hero-stat-card::before {
-  content: ''; position: absolute; top: 0; left: 0;
-  width: 3px; height: 100%; background: var(--gold);
-}
-.stat-lbl {
-  font-family: 'Share Tech Mono', monospace; font-size: .52rem;
-  color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px;
-}
-.stat-val {
-  font-family: 'Orbitron', monospace; font-weight: 900;
-  font-size: 1.3rem; color: var(--gold); line-height: 1.1;
-}
-.stat-bdg {
-  font-family: 'Share Tech Mono', monospace; font-size: .5rem;
-  color: var(--green); margin-top: 4px; word-break: break-word;
-}
-
-/* Hero right visual (desktop) */
-.hero-right-visual {
-  position: relative; height: 340px;
-  display: flex; align-items: center; justify-content: center;
-}
-.hero-candle-bg {
-  position: absolute; inset: 0; opacity: .08; pointer-events: none;
-}
-.hero-orb {
-  width: 200px; height: 200px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(240,185,11,.2) 0%, transparent 70%);
-  border: 1px solid rgba(240,185,11,.25);
-  display: flex; align-items: center; justify-content: center;
-  animation: heroOrb 4s ease-in-out infinite; position: relative; z-index: 2;
-}
-@keyframes heroOrb {
-  0%,100% { box-shadow: 0 0 30px rgba(240,185,11,.3), 0 0 60px rgba(240,185,11,.15); }
-  50% { box-shadow: 0 0 50px rgba(240,185,11,.5), 0 0 100px rgba(240,185,11,.25); }
-}
-.hero-orb-text {
-  font-family: 'Orbitron', monospace; font-weight: 900;
-  font-size: 2.8rem; color: var(--gold);
-  text-shadow: 0 0 30px rgba(240,185,11,.5);
-}
-
-@keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ============================================================
-   GALAXY / ORBIT SECTION
-============================================================ */
-.galaxy-section { position: relative; overflow: hidden; }
-.galaxy-glow {
-  position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(240,185,11,.03) 0%, transparent 70%);
-}
-.orbit-arena {
-  position: relative;
-  width: min(90vw, 320px); height: min(90vw, 320px);
-  margin: 0 auto;
-}
-@media (min-width: 576px) { .orbit-arena { width: min(80vw, 440px); height: min(80vw, 440px); } }
-@media (min-width: 992px) { .orbit-arena { width: 620px; height: 620px; } }
-
-.orbit-ring {
-  position: absolute; top: 50%; left: 50%; border-radius: 50%;
-  border: 1px solid rgba(240,185,11,.1); transform: translate(-50%,-50%);
-  animation: ringglow 3s ease-in-out infinite;
-}
-.ring5 { border-style: dashed; }
-@keyframes ringglow {
-  0%,100% { border-color: rgba(240,185,11,.07); }
-  50% { border-color: rgba(240,185,11,.18); }
-}
-.orbit-sun {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, #f0b90b 0%, #c99a08 50%, rgba(240,185,11,.1) 80%, transparent 100%);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 10; animation: sunpulse 4s ease-in-out infinite;
-}
-@keyframes sunpulse {
-  0%,100% { box-shadow: 0 0 24px rgba(240,185,11,.6), 0 0 50px rgba(240,185,11,.3); }
-  50% { box-shadow: 0 0 40px rgba(240,185,11,.9), 0 0 80px rgba(240,185,11,.5); }
-}
-.orbit-path {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%,-50%); border-radius: 50%;
-  animation: orbitSpin linear infinite;
-}
-@keyframes orbitSpin {
-  from { transform: translate(-50%,-50%) rotate(0deg); }
-  to { transform: translate(-50%,-50%) rotate(360deg); }
-}
-.orbit-coin {
-  position: absolute; left: 50%; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  animation: coinCounter linear infinite; border: 2px solid;
-  transform: translateX(-50%);
-}
-@keyframes coinCounter {
-  from { transform: translateX(-50%) rotate(0deg); }
-  to { transform: translateX(-50%) rotate(-360deg); }
-}
-.orbit-coin .ctip {
-  position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
-  background: rgba(4,8,15,.92); border: 1px solid var(--border2);
-  padding: 2px 7px; font-family: 'Share Tech Mono', monospace;
-  font-size: .52rem; color: var(--gold); white-space: nowrap;
-  opacity: 0; pointer-events: none; transition: opacity .2s;
-}
-.orbit-coin:hover .ctip { opacity: 1; }
-.galaxy-caption {
-  font-family: 'Share Tech Mono', monospace; font-size: .6rem;
-  color: var(--muted); letter-spacing: .08em; line-height: 1.7;
-}
-
-/* ============================================================
-   PRICE CARDS
-============================================================ */
-.price-card {
-  background: var(--panel); border: 1px solid var(--border);
-  padding: 18px 16px; position: relative; overflow: hidden;
-  transition: all .4s; height: 100%;
-}
-.price-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0; transition: opacity .4s;
-}
-.price-card:hover { border-color: var(--border2); transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,.5); }
-.price-card:hover::before { opacity: 1; }
-.coin-logo {
-  width: 40px; height: 40px; border-radius: 50%; border: 2px solid;
-  display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
-}
-.coin-logo svg { width: 24px; height: 24px; }
-.coin-logo.btc { background: rgba(247,147,26,.12); border-color: #f7931a; }
-.coin-logo.eth { background: rgba(98,126,234,.12); border-color: #627eea; }
-.coin-logo.bnb { background: rgba(240,185,11,.12); border-color: var(--gold); }
-.coin-logo.xrp { background: rgba(0,170,228,.12); border-color: #00aae4; }
-.coin-logo.sol { background: rgba(0,255,163,.12); border-color: #00ffa3; }
-.price-badge {
-  font-family: 'Share Tech Mono', monospace; font-size: .54rem;
-  padding: 3px 7px; border-radius: 2px;
-}
-.price-badge.up { background: rgba(14,203,129,.1); color: var(--green); border: 1px solid rgba(14,203,129,.2); }
-.price-badge.dn { background: rgba(246,70,93,.1); color: var(--red); border: 1px solid rgba(246,70,93,.2); }
-.coin-nm { font-family: 'Orbitron', monospace; font-weight: 700; font-size: .78rem; color: #fff; margin-bottom: 2px; }
-.coin-pr { font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; color: #fff; font-weight: 700; margin: 8px 0 4px; transition: color .2s; }
-.coin-ch { font-family: 'Share Tech Mono', monospace; font-size: .66rem; }
-.coin-ch.up { color: var(--green); }
-.coin-ch.dn { color: var(--red); }
-.coin-pair-lbl { font-family: 'Share Tech Mono', monospace; font-size: .56rem; color: var(--muted); }
-.mini-chart { height: 32px; margin-top: 10px; }
-.mini-chart svg { width: 100%; height: 100%; }
-.api-status {
-  font-family: 'Share Tech Mono', monospace; font-size: .58rem;
-  color: var(--muted); letter-spacing: .06em;
-}
-
-/* ============================================================
-   ABOUT
-============================================================ */
-.about-visual-wrap { position: relative; height: 320px; }
-@media (min-width: 992px) { .about-visual-wrap { height: 420px; } }
-.about-orb {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 180px; height: 180px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(240,185,11,.12) 0%, transparent 70%);
-  border: 1px solid rgba(240,185,11,.18);
-  animation: orbpulse 4s ease-in-out infinite;
-}
-@keyframes orbpulse {
-  0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .6; }
-  50% { transform: translate(-50%,-50%) scale(1.1); opacity: 1; }
-}
-.about-orb::after {
-  content: ''; position: absolute; inset: -28px; border-radius: 50%;
-  border: 1px dashed rgba(240,185,11,.05); animation: spinn 18s linear infinite;
-}
-@keyframes spinn { to { transform: rotate(360deg); } }
-.about-center-txt {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  text-align: center; z-index: 2;
-}
-.about-big { font-family: 'Orbitron', monospace; font-size: 3.5rem; font-weight: 900; color: var(--gold); line-height: 1; text-shadow: 0 0 28px rgba(240,185,11,.45); }
-.about-sm { font-family: 'Share Tech Mono', monospace; font-size: .48rem; color: var(--muted); letter-spacing: .16em; text-transform: uppercase; margin-top: 4px; }
-.chip-wrap { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-.chip {
-  position: absolute; background: var(--panel); border: 1px solid var(--border);
-  padding: 5px 10px; font-family: 'Share Tech Mono', monospace;
-  font-size: .52rem; color: var(--gold); white-space: nowrap;
-  animation: floatchip 6s ease-in-out infinite;
-}
-.chip:nth-child(1) { top: 8%; left: 2%; animation-delay: 0s; }
-.chip:nth-child(2) { top: 20%; right: 0%; animation-delay: 1s; }
-.chip:nth-child(3) { bottom: 28%; left: 0%; animation-delay: 2s; }
-.chip:nth-child(4) { bottom: 10%; right: 2%; animation-delay: .5s; }
-.chip:nth-child(5) { top: 60%; left: 4%; animation-delay: 1.5s; }
-@keyframes floatchip { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-.about-heading {
-  font-family: 'Orbitron', monospace; font-weight: 900;
-  font-size: clamp(1.4rem, 4vw, 2rem); color: #fff; line-height: 1.2; margin-bottom: 14px;
-}
-.about-heading span { color: var(--gold); }
-.about-desc { font-size: .92rem; font-weight: 300; color: #8892a4; line-height: 1.8; margin-bottom: 20px; }
-.feat-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
-.feat-icon {
-  width: 32px; height: 32px; min-width: 32px;
-  background: rgba(240,185,11,.07); border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center; font-size: .88rem;
-}
-.feat-strong { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .9rem; color: #fff; display: block; margin-bottom: 2px; }
-.feat-sub { font-size: .78rem; color: var(--muted); font-weight: 300; }
-
-/* ============================================================
-   STRATEGY CARDS
-============================================================ */
-.strat-card {
-  background: var(--panel); border: 1px solid var(--border);
-  padding: 24px 20px; position: relative; overflow: hidden;
-  transition: all .4s; height: 100%;
-}
-.strat-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0; transition: opacity .4s;
-}
-.strat-card:hover::before { opacity: 1; }
-.strat-card:hover { transform: translateY(-5px); border-color: rgba(240,185,11,.28); box-shadow: 0 20px 40px rgba(0,0,0,.4); }
-.strat-num { font-family: 'Orbitron', monospace; font-size: .54rem; color: var(--gold); opacity: .3; letter-spacing: .1em; margin-bottom: 12px; }
-.strat-ico {
-  width: 44px; height: 44px; background: rgba(240,185,11,.05); border: 1px solid rgba(240,185,11,.14);
-  display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 14px;
-  transition: all .3s;
-}
-.strat-card:hover .strat-ico { background: rgba(240,185,11,.1); border-color: rgba(240,185,11,.3); }
-.strat-title { font-family: 'Orbitron', monospace; font-weight: 700; font-size: .8rem; color: #fff; margin-bottom: 8px; }
-.strat-desc { font-size: .82rem; font-weight: 300; color: var(--muted); line-height: 1.65; }
-.strat-tag {
-  display: inline-block; margin-top: 12px; font-family: 'Share Tech Mono', monospace;
-  font-size: .54rem; color: var(--gold); border: 1px solid rgba(240,185,11,.18); padding: 3px 8px;
-}
-
-/* ============================================================
-   CONNECT SECTION
-============================================================ */
-.connect-box {
-  position: relative; overflow: hidden;
-  border: 1px solid var(--border2); background: var(--panel);
-  padding: 50px 24px; text-align: center;
-}
-@media (min-width: 768px) { .connect-box { padding: 70px 60px; } }
-.connect-grid-bg {
-  position: absolute; inset: 0; pointer-events: none;
-  background-image: linear-gradient(rgba(240,185,11,.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(240,185,11,.035) 1px, transparent 1px);
-  background-size: 32px 32px; animation: gridmove 8s linear infinite;
-}
-@keyframes gridmove { 0% { background-position: 0 0; } 100% { background-position: 32px 32px; } }
-.connect-glow {
-  position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
-  width: 220px; height: 220px; pointer-events: none;
-  background: radial-gradient(circle, rgba(240,185,11,.07) 0%, transparent 70%);
-}
-.c-particle {
-  position: absolute; border-radius: 50%; background: rgba(240,185,11,.18);
-  pointer-events: none; animation: cpart linear infinite;
-}
-@keyframes cpart {
-  0% { transform: translateY(100%); opacity: 0; }
-  20%,80% { opacity: 1; }
-  100% { transform: translateY(-120%); opacity: 0; }
-}
-.connect-title {
-  font-family: 'Orbitron', monospace; font-weight: 900;
-  font-size: clamp(1.35rem, 5vw, 2.4rem); color: #fff;
-  margin: 10px 0; position: relative; z-index: 2; line-height: 1.2;
-}
-.connect-title span { color: var(--gold); }
-.connect-desc {
-  font-size: .9rem; font-weight: 300; color: var(--muted);
-  margin: 0 auto 32px; max-width: 440px; line-height: 1.75;
-  position: relative; z-index: 2;
-}
-.soc-btn {
-  display: flex; align-items: center; gap: 12px;
-  padding: 16px 20px; border: 1px solid; color: #fff !important;
-  text-decoration: none; font-family: 'Rajdhani', sans-serif;
-  font-weight: 600; font-size: .88rem; letter-spacing: .06em;
-  transition: all .35s; position: relative; overflow: hidden;
-  background: rgba(0,0,0,.3); width: 100%; min-height: 60px;
-}
-.soc-btn::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity .35s; }
-.soc-btn:hover::before, .soc-btn:active::before { opacity: 1; }
-.soc-btn:active { transform: scale(.98); }
-.soc-tg { border-color: rgba(0,136,204,.4); }
-.soc-tg::before { background: linear-gradient(135deg, rgba(0,136,204,.18), rgba(0,136,204,.04)); }
-.soc-tg:hover { box-shadow: 0 8px 24px rgba(0,136,204,.3); transform: translateY(-2px); }
-.soc-tw { border-color: rgba(255,255,255,.2); }
-.soc-tw::before { background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); }
-.soc-tw:hover { box-shadow: 0 8px 24px rgba(255,255,255,.1); transform: translateY(-2px); }
-.soc-dc { border-color: rgba(114,137,218,.4); }
-.soc-dc::before { background: linear-gradient(135deg, rgba(114,137,218,.18), rgba(114,137,218,.04)); }
-.soc-dc:hover { box-shadow: 0 8px 24px rgba(114,137,218,.3); transform: translateY(-2px); }
-.soc-ico {
-  width: 36px; height: 36px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.soc-tg .soc-ico { background: rgba(0,136,204,.2); }
-.soc-tw .soc-ico { background: rgba(255,255,255,.1); }
-.soc-dc .soc-ico { background: rgba(114,137,218,.2); }
-.soc-ico svg { width: 19px; height: 19px; }
-.soc-info { text-align: left; }
-.soc-info strong { display: block; font-size: .88rem; letter-spacing: .05em; }
-.soc-info span { font-size: .7rem; color: var(--muted); font-weight: 400; }
-.soc-arrow { margin-left: auto; font-size: 1.1rem; color: var(--muted); flex-shrink: 0; }
-
-/* ============================================================
-   FOOTER
-============================================================ */
-.site-footer {
-  border-top: 1px solid var(--border);
-  padding: 24px 0;
-  position: relative; z-index: 10;
-}
-.footer-logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: .8rem; color: var(--gold); letter-spacing: .12em; }
-.footer-copy { font-family: 'Share Tech Mono', monospace; font-size: .56rem; color: var(--muted); }
-.footer-disc { font-family: 'Share Tech Mono', monospace; font-size: .52rem; color: #2d3344; line-height: 1.5; }
-
-/* ============================================================
-   PANEL / DARK SECTION
-============================================================ */
-.dark-section { background: rgba(240,185,11,.008); }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRYPTO ORATOR — Master the Market in 3D</title>
+  
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursor-ring"></div>
-<div class="scanline"></div>
-<canvas id="bg-canvas"></canvas>
-<div class="grid-bg"></div>
+  <!-- Premium Candlestick Preloader -->
+  <div class="preloader-overlay" id="preloader">
+    <div class="preloader-content">
+      <div class="preloader-candles">
+        <div class="preloader-candle green" style="animation-delay: 0s;">
+          <div class="preloader-wick"></div>
+          <div class="preloader-body"></div>
+        </div>
+        <div class="preloader-candle red" style="animation-delay: 0.15s;">
+          <div class="preloader-wick"></div>
+          <div class="preloader-body"></div>
+        </div>
+        <div class="preloader-candle green" style="animation-delay: 0.3s;">
+          <div class="preloader-wick"></div>
+          <div class="preloader-body"></div>
+        </div>
+        <div class="preloader-candle red" style="animation-delay: 0.45s;">
+          <div class="preloader-wick"></div>
+          <div class="preloader-body"></div>
+        </div>
+        <div class="preloader-candle green" style="animation-delay: 0.6s;">
+          <div class="preloader-wick"></div>
+          <div class="preloader-body"></div>
+        </div>
+      </div>
+      <div class="preloader-title">CRYPTO ORATOR</div>
+      <div class="preloader-subtitle tech-mono">SYNCHRONIZING SECURE MARKET DATA...</div>
+    </div>
+  </div>
 
-<!-- ===== NAVBAR (Bootstrap) ===== -->
-<nav class="navbar navbar-expand-lg fixed-top" style="z-index:1030;">
-  <div class="container-fluid px-3 px-lg-5">
+  <!-- Liquid SVG Warp Filter -->
+  <svg style="position: absolute; width: 0; height: 0;" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <defs>
+      <filter id="liquid-glass-warp">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
 
-    <a class="navbar-brand" href="#">
-      <div class="brand-icon">
+  <!-- Custom Fluid Cursor -->
+  <div class="fluid-cursor" id="fluid-cursor"></div>
+  <div class="fluid-cursor-ring" id="fluid-cursor-ring"></div>
+
+  <!-- Background Environment Layers -->
+  <div class="bg-layer"></div>
+  <canvas id="bg-canvas"></canvas>
+  <div class="grid-overlay"></div>
+  
+  <!-- Fluid Liquid Blobs Backdrops -->
+  <div class="fluid-blob-container">
+    <div class="fluid-blob blob-1"></div>
+    <div class="fluid-blob blob-2"></div>
+    <div class="fluid-blob blob-3"></div>
+    <div class="fluid-blob blob-4"></div>
+  </div>
+
+  <!-- Floating Glass Parallax Assets (Drift slowly on page scroll) -->
+  <div class="glass-parallax-asset asset-torus" style="top: 15vh; left: 10vw;"></div>
+  <div class="glass-parallax-asset asset-sphere" style="top: 80vh; right: 8vw;"></div>
+  <div class="glass-parallax-asset asset-ring" style="top: 150vh; left: 6vw;"></div>
+  <div class="glass-parallax-asset asset-cube" style="top: 220vh; right: 12vw;"></div>
+  <div class="glass-parallax-asset asset-torus" style="top: 290vh; left: 8vw;"></div>
+  <div class="glass-parallax-asset asset-sphere" style="top: 360vh; right: 10vw;"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar liquid-glass">
+    <a href="#" class="brand">
+      <div class="brand-icon-box">
         <svg viewBox="0 0 24 24" fill="none">
-          <rect x="5" y="8" width="4" height="10" fill="#f0b90b"/>
-          <rect x="6.5" y="4" width="1" height="4" fill="#f0b90b"/>
-          <rect x="6.5" y="18" width="1" height="3" fill="#f0b90b"/>
-          <rect x="15" y="5" width="4" height="13" fill="#f0b90b"/>
-          <rect x="16.5" y="2" width="1" height="3" fill="#f0b90b"/>
-          <rect x="16.5" y="18" width="1" height="4" fill="#f0b90b"/>
+          <rect x="5" y="8" width="4" height="10" fill="#2563eb"/>
+          <rect x="6.5" y="4" width="1" height="4" fill="#2563eb"/>
+          <rect x="6.5" y="18" width="1" height="3" fill="#2563eb"/>
+          <rect x="15" y="5" width="4" height="13" fill="#2563eb"/>
+          <rect x="16.5" y="2" width="1" height="3" fill="#2563eb"/>
+          <rect x="16.5" y="18" width="1" height="4" fill="#2563eb"/>
         </svg>
       </div>
-      CRYPTO ORATOR
+      <span>CRYPTO ORATOR</span>
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <ul class="nav-links">
+      <li class="nav-link-item"><a href="#universe">🌌 Universe</a></li>
+      <li class="nav-link-item"><a href="#prices">📊 Live Prices</a></li>
+      <li class="nav-link-item"><a href="#diagnostics">⚙️ System</a></li>
+      <li class="nav-link-item"><a href="#about">👤 About</a></li>
+      <li class="nav-link-item"><a href="#strategies">📈 Strategies</a></li>
+      <li class="nav-link-item"><a href="#connect">✉ Connect</a></li>
+    </ul>
 
-    <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-        <li class="nav-item"><a class="nav-link" href="#galaxy">🌌 Universe</a></li>
-        <li class="nav-item"><a class="nav-link" href="#prices">📊 Live Prices</a></li>
-        <li class="nav-item"><a class="nav-link" href="#about">👤 About</a></li>
-        <li class="nav-item"><a class="nav-link" href="#strategies">📈 Strategies</a></li>
-        <li class="nav-item"><a class="nav-link" href="#connect">✉ Connect</a></li>
-        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-          <a href="#connect" class="nav-cta-btn">GET IN TOUCH</a>
-        </li>
-      </ul>
+    <div class="nav-right-controls">
+      <button id="audio-toggle-btn" class="hud-btn sound-off">
+        <i class="bi bi-volume-mute-fill"></i> SOUND: OFF
+      </button>
+      <button class="cta-button" onclick="window.location.hash='connect'">GET IN TOUCH</button>
     </div>
+    
+    <div class="mobile-toggle" id="mobile-menu-btn">
+      <i class="bi bi-list"></i>
+    </div>
+  </nav>
 
+  <!-- LIVE TICKER -->
+  <div class="ticker-container liquid-glass">
+    <div class="ticker-track" id="ticker-track">
+      <!-- Generated in JS -->
+    </div>
   </div>
-</nav>
 
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker-track" id="ticker-track"></div>
-</div>
+  <!-- MAIN CONTENT WRAPPER -->
+  <div class="content-wrapper">
 
-<!-- ===== SITE WRAPPER ===== -->
-<div class="site-wrapper">
-
-  <!-- ===== HERO ===== -->
-  <section class="hero-section" id="home">
-    <canvas id="candle-canvas" style="position:absolute;right:0;top:0;width:100%;height:100%;opacity:.05;pointer-events:none;z-index:1;"></canvas>
-    <div class="container-fluid px-4 px-lg-5" style="position:relative;z-index:2;">
-      <div class="row align-items-center gy-5">
-
-        <!-- Left -->
-        <div class="col-12 col-lg-7">
-          <div class="hero-tag">CRYPTO RESEARCH &amp; TRADING EDUCATION</div>
-          <h1 class="hero-h1">THE <span class="accent">VOICE</span><br>OF THE<br>MARKET</h1>
-          <p class="hero-sub">Deep crypto research, advanced trading strategies, and market analysis — no noise, no hype. Data-driven insight from a dedicated market student.</p>
-          <div class="hero-btns">
-            <a href="#strategies" class="btn-co-gold">EXPLORE STRATEGIES</a>
-            <a href="#connect" class="btn-co-outline">JOIN COMMUNITY</a>
+    <!-- HERO SECTION -->
+    <section class="hero-section scroll-reveal" id="home">
+      <div class="hero-grid">
+        <!-- Left Hero Copy -->
+        <div class="hero-text-content">
+          <span class="hero-eyebrow">◆ Crypto Research &amp; Trading Education</span>
+          <h1 class="hero-title">The <span class="glow-text">Voice</span><br>Of The Market</h1>
+          <p class="hero-desc">
+            Deep crypto research, advanced trading strategies, and market analysis — no noise, no hype. Data-driven insight from a dedicated market student.
+          </p>
+          <div class="hero-buttons">
+            <button class="btn-primary" onclick="window.location.hash='strategies'">EXPLORE STRATEGIES</button>
+            <button class="btn-secondary" onclick="window.location.hash='connect'">JOIN COMMUNITY</button>
           </div>
-          <!-- Stats -->
-          <div class="row g-2">
-            <div class="col-4">
-              <div class="hero-stat-card">
-                <div class="stat-lbl">FOCUS ASSETS</div>
-                <div class="stat-val">10+</div>
-                <div class="stat-bdg">▲ BTC ETH BNB XRP SOL</div>
-              </div>
+          <!-- Hero Stats cards -->
+          <div class="hero-stats-row">
+            <div class="stat-card liquid-glass tilt-card">
+              <div class="stat-label">Focus Assets</div>
+              <div class="stat-value">10+</div>
+              <div class="stat-badge">▲ BTC ETH BNB SOL</div>
             </div>
-            <div class="col-4">
-              <div class="hero-stat-card">
-                <div class="stat-lbl">RESEARCH MODE</div>
-                <div class="stat-val">24/7</div>
-                <div class="stat-bdg">● ALWAYS ACTIVE</div>
-              </div>
+            <div class="stat-card liquid-glass tilt-card">
+              <div class="stat-label">Research Mode</div>
+              <div class="stat-value">24/7</div>
+              <div class="stat-badge">● Always Active</div>
             </div>
-            <div class="col-4">
-              <div class="hero-stat-card">
-                <div class="stat-lbl">SIGNAL SERVICE</div>
-                <div class="stat-val">FREE</div>
-                <div class="stat-bdg">◆ EDUCATION ONLY</div>
-              </div>
+            <div class="stat-card liquid-glass tilt-card">
+              <div class="stat-label">Signal Service</div>
+              <div class="stat-value">FREE</div>
+              <div class="stat-badge">◆ Education Only</div>
             </div>
           </div>
         </div>
 
-        <!-- Right visual (hidden on mobile) -->
-        <div class="col-lg-5 d-none d-lg-block">
-          <div class="hero-right-visual">
-            <div class="hero-orb">
-              <span class="hero-orb-text">CO</span>
-            </div>
-          </div>
+        <!-- Right Hero 3D Canvas Container -->
+        <div class="hero-canvas-container">
+          <canvas id="hero-3d-canvas"></canvas>
         </div>
-
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== GALAXY ===== -->
-  <section class="galaxy-section section-pad dark-section" id="galaxy">
-    <div class="galaxy-glow"></div>
-    <div class="container-fluid px-4 px-lg-5">
-
-      <div class="text-center reveal mb-4 mb-lg-5">
-        <span class="sec-eyebrow">✦ CRYPTO UNIVERSE</span>
-        <h2 class="sec-heading">THE <span>GALAXY</span> OF COINS</h2>
-        <div class="sec-divider"></div>
+    <!-- 3D UNIVERSE (GALAXY) SECTION -->
+    <section class="universe-section section-padding scroll-reveal" id="universe">
+      <div class="section-heading-container">
+        <span class="section-eyebrow">ASIC Mining Core</span>
+        <h2 class="section-title">System Mining Core</h2>
+        <div class="section-divider"></div>
       </div>
 
-      <div class="orbit-arena reveal">
-        <div class="orbit-ring ring1"></div>
-        <div class="orbit-ring ring2"></div>
-        <div class="orbit-ring ring3"></div>
-        <div class="orbit-ring ring4"></div>
-        <div class="orbit-ring ring5"></div>
-
-        <!-- BTC Sun -->
-        <div class="orbit-sun" id="orb-sun">
-          <svg viewBox="0 0 32 32" style="width:60%;height:60%;">
-            <path fill="#1a0900" d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm3.914 13.178c.292-1.956-1.196-3.008-3.232-3.71l.66-2.647-1.611-.402-.643 2.577c-.424-.106-.859-.205-1.292-.304l.648-2.597-1.61-.401-.661 2.647c-.351-.08-.696-.159-1.031-.243l.002-.009-2.222-.555-.429 1.72 1.171.291c.653.163.771.595.751.937l-.753 3.02.167.052-.17-.042-1.056 4.233c-.08.199-.283.498-.74.384l-1.171-.293-.8 1.842 2.097.523 1.15.297-.668 2.68 1.609.401.661-2.649 1.285.333-.659 2.639 1.611.401.668-2.675c2.753.521 4.824.311 5.694-2.18.702-2.003-.035-3.158-1.482-3.912 1.054-.243 1.848-.936 2.06-2.368zm-3.686 5.17c-.499 2.003-3.878.92-4.972.648l.887-3.555c1.094.273 4.603.814 4.085 2.907zm.499-5.196c-.455 1.822-3.264.896-4.176.669l.804-3.224c.912.227 3.848.651 3.372 2.555z"/>
-          </svg>
-        </div>
-
-        <!-- ETH orbit1 -->
-        <div class="orbit-path" id="op1" style="animation-duration:12s;">
-          <div class="orbit-coin" id="oc1" style="border-color:#627eea;background:rgba(98,126,234,.15);">
-            <svg viewBox="0 0 32 32"><g fill="none"><circle cx="16" cy="16" r="16" fill="#627eea"/><g fill="#fff"><path fill-opacity=".602" d="M16.498 4v8.87l7.497 3.35z"/><path d="M16.498 4L9 16.22l7.498-3.35z"/><path fill-opacity=".602" d="M16.498 21.968v6.027L24 17.616z"/><path d="M16.498 27.995v-6.028L9 17.616z"/><path fill-opacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.348z"/><path fill-opacity=".602" d="M9 16.22l7.498 4.353v-7.701z"/></g></g></svg>
-            <div class="ctip">ETH</div>
-          </div>
-        </div>
-
-        <!-- BNB orbit2 -->
-        <div class="orbit-path" id="op2" style="animation-duration:18s;animation-direction:reverse;">
-          <div class="orbit-coin" id="oc2" style="border-color:#f0b90b;background:rgba(240,185,11,.15);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#f0b90b"/><path fill="#fff" d="M12.116 14.404L16 10.52l3.886 3.886 2.26-2.26L16 6l-6.144 6.144 2.26 2.26zM6 16l2.26-2.26L10.52 16l-2.26 2.26L6 16zm6.116 1.596L16 21.48l3.886-3.886 2.26 2.259L16 26l-6.144-6.144 2.262-2.258zM21.48 16l2.26-2.26L26 16l-2.26 2.26L21.48 16zm-3.188-.002L16 13.706l-2.314 2.292L16 18.294l2.294-2.294z"/></svg>
-            <div class="ctip">BNB</div>
-          </div>
-        </div>
-
-        <!-- SOL orbit3 -->
-        <div class="orbit-path" id="op3a" style="animation-duration:24s;">
-          <div class="orbit-coin" id="oc3a" style="border-color:#00ffa3;background:rgba(0,255,163,.12);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#1a1a2e"/><g fill="url(#sg1)"><path d="M9.5 20.5h13l-2.5 2.5H7l2.5-2.5zm13-9H9.5L7 9h13l2.5 2.5zm0 4.5H9.5l-2.5 2.5h13l2.5-2.5z"/></g><defs><linearGradient id="sg1" x1="7" y1="16" x2="22.5" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#9945ff"/><stop offset="1" stop-color="#00ffa3"/></linearGradient></defs></svg>
-            <div class="ctip">SOL</div>
-          </div>
-        </div>
-        <!-- XRP orbit3 offset -->
-        <div class="orbit-path" id="op3b" style="animation-duration:24s;animation-delay:-12s;">
-          <div class="orbit-coin" id="oc3b" style="border-color:#00aae4;background:rgba(0,170,228,.12);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#00aae4"/><path fill="#fff" d="M23 8h2.72l-6.26 6.26a4.96 4.96 0 01-7.02 0L6.28 8H9l4.86 4.86a3.2 3.2 0 004.52 0L23 8zm-13.72 16H6.56l6.3-6.3a4.96 4.96 0 017.02 0L26.2 24H23.5l-4.9-4.9a3.2 3.2 0 00-4.52 0L9.28 24z"/></svg>
-            <div class="ctip">XRP</div>
-          </div>
-        </div>
-
-        <!-- Meme coins orbit4 -->
-        <div class="orbit-path" id="op4a" style="animation-duration:30s;animation-direction:reverse;">
-          <div class="orbit-coin orbit-meme" id="oc4a" style="border-color:#c2a633;background:rgba(194,166,51,.15);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#c2a633"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="14" fill="#fff">Ð</text></svg>
-            <div class="ctip">DOGE</div>
-          </div>
-        </div>
-        <div class="orbit-path" id="op4b" style="animation-duration:30s;animation-delay:-10s;animation-direction:reverse;">
-          <div class="orbit-coin orbit-meme" id="oc4b" style="border-color:#e05d0f;background:rgba(224,93,15,.15);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#e05d0f"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="8" fill="#fff">SHIB</text></svg>
-            <div class="ctip">SHIB</div>
-          </div>
-        </div>
-        <div class="orbit-path" id="op4c" style="animation-duration:30s;animation-delay:-20s;animation-direction:reverse;">
-          <div class="orbit-coin orbit-meme" id="oc4c" style="border-color:#3cb371;background:rgba(60,179,113,.15);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#3cb371"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="8" fill="#fff">PEPE</text></svg>
-            <div class="ctip">PEPE</div>
-          </div>
-        </div>
-
-        <!-- Outer orbit5 memes -->
-        <div class="orbit-path" id="op5a" style="animation-duration:38s;">
-          <div class="orbit-coin orbit-meme" id="oc5a" style="border-color:#a855f7;background:rgba(168,85,247,.15);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#a855f7"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="9" fill="#fff">WIF</text></svg>
-            <div class="ctip">WIF</div>
-          </div>
-        </div>
-        <div class="orbit-path" id="op5b" style="animation-duration:38s;animation-delay:-10s;">
-          <div class="orbit-coin orbit-meme" id="oc5b" style="border-color:#f97316;background:rgba(249,115,22,.15);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#f97316"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="8" fill="#fff">BONK</text></svg>
-            <div class="ctip">BONK</div>
-          </div>
-        </div>
-        <div class="orbit-path" id="op5c" style="animation-duration:38s;animation-delay:-24s;">
-          <div class="orbit-coin orbit-meme" id="oc5c" style="border-color:#f59e0b;background:rgba(245,158,11,.15);">
-            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#f59e0b"/><text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-weight="900" font-size="7" fill="#fff">FLOKI</text></svg>
-            <div class="ctip">FLOKI</div>
-          </div>
-        </div>
-
-      </div><!-- /orbit-arena -->
-
-      <p class="text-center galaxy-caption mt-4 reveal">
-        ✦ BTC at the core &nbsp;·&nbsp; Major coins in orbit &nbsp;·&nbsp; Memecoins in the outer galaxy
-      </p>
-    </div>
-  </section>
-
-  <!-- ===== LIVE PRICES ===== -->
-  <section class="section-pad" id="prices">
-    <div class="container-fluid px-4 px-lg-5">
-
-      <div class="text-center reveal mb-4 mb-lg-5">
-        <span class="sec-eyebrow"><span class="live-dot"></span>LIVE MARKET DATA</span>
-        <h2 class="sec-heading">REAL-TIME <span>PRICES</span></h2>
-        <div class="sec-divider"></div>
-      </div>
-
-      <div class="row g-3">
-        <div class="col-6 col-md-4 col-xl reveal rd1" id="col-btc">
-          <div class="price-card">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <div class="coin-logo btc">
-                <svg viewBox="0 0 32 32"><path fill="#f7931a" d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm3.914 13.178c.292-1.956-1.196-3.008-3.232-3.71l.66-2.647-1.611-.402-.643 2.577c-.424-.106-.859-.205-1.292-.304l.648-2.597-1.61-.401-.661 2.647c-.351-.08-.696-.159-1.031-.243l.002-.009-2.222-.555-.429 1.72 1.171.291c.653.163.771.595.751.937l-.753 3.02.167.052-.17-.042-1.056 4.233c-.08.199-.283.498-.74.384l-1.171-.293-.8 1.842 2.097.523 1.15.297-.668 2.68 1.609.401.661-2.649 1.285.333-.659 2.639 1.611.401.668-2.675c2.753.521 4.824.311 5.694-2.18.702-2.003-.035-3.158-1.482-3.912 1.054-.243 1.848-.936 2.06-2.368zm-3.686 5.17c-.499 2.003-3.878.92-4.972.648l.887-3.555c1.094.273 4.603.814 4.085 2.907zm.499-5.196c-.455 1.822-3.264.896-4.176.669l.804-3.224c.912.227 3.848.651 3.372 2.555z"/></svg>
-              </div>
-              <span class="price-badge up" id="badge-btc">+0.00%</span>
+      <div class="mining-grid">
+        <!-- Left Side: Control & Stats Console -->
+        <div class="mining-dashboard liquid-glass tilt-card">
+          <h3 class="diag-panel-title">MINING CONTROL SYSTEM</h3>
+          <div class="diagnostics-list">
+            <div class="diag-row">
+              <span class="diag-lbl">ASIC HASH RATE:</span>
+              <span class="diag-val text-accent-cyan" id="mining-hashrate">248.50 TH/s</span>
             </div>
-            <div class="coin-nm">BITCOIN</div>
-            <div class="coin-pair-lbl">BTC / USDT</div>
-            <div class="coin-pr" id="price-btc">$--,---</div>
-            <div class="coin-ch up" id="change-btc">▲ Loading...</div>
-            <div class="mini-chart" id="chart-btc"></div>
+            <div class="diag-row">
+              <span class="diag-lbl">CHIP CORE TEMP:</span>
+              <span class="diag-val text-accent-gold" id="mining-temp">68.20 °C</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-lbl">BLOCKS SOLVED:</span>
+              <span class="diag-val" id="mining-blocks">142</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-lbl">POWER VOLTAGE:</span>
+              <span class="diag-val text-accent-purple">3,200 W (98.4% Eff)</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-lbl">CORE STATUS:</span>
+              <span class="diag-val text-accent-green">NOMINAL / RUNNING</span>
+            </div>
+          </div>
+          
+          <!-- Mini Log feed specifically for mining -->
+          <div class="diag-mini-console mt-2">
+            <div class="console-header"><i class="bi bi-cpu"></i> mining core feed</div>
+            <div class="console-lines" id="mining-terminal-content">
+              <div><span class="term-tag" style="color:var(--cyan); font-weight:700;">[SYS]</span> SECURING ASIC NETWORK INTERFACE...</div>
+            </div>
           </div>
         </div>
 
-        <div class="col-6 col-md-4 col-xl reveal rd2" id="col-eth">
-          <div class="price-card">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <div class="coin-logo eth">
-                <svg viewBox="0 0 32 32"><g fill="none"><circle cx="16" cy="16" r="16" fill="#627eea"/><g fill="#fff"><path fill-opacity=".602" d="M16.498 4v8.87l7.497 3.35z"/><path d="M16.498 4L9 16.22l7.498-3.35z"/><path fill-opacity=".602" d="M16.498 21.968v6.027L24 17.616z"/><path d="M16.498 27.995v-6.028L9 17.616z"/><path fill-opacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.348z"/><path fill-opacity=".602" d="M9 16.22l7.498 4.353v-7.701z"/></g></g></svg>
-              </div>
-              <span class="price-badge up" id="badge-eth">+0.00%</span>
-            </div>
-            <div class="coin-nm">ETHEREUM</div>
-            <div class="coin-pair-lbl">ETH / USDT</div>
-            <div class="coin-pr" id="price-eth">$--,---</div>
-            <div class="coin-ch up" id="change-eth">▲ Loading...</div>
-            <div class="mini-chart" id="chart-eth"></div>
-          </div>
-        </div>
-
-        <div class="col-6 col-md-4 col-xl reveal rd3" id="col-bnb">
-          <div class="price-card">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <div class="coin-logo bnb">
-                <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#f0b90b"/><path fill="#fff" d="M12.116 14.404L16 10.52l3.886 3.886 2.26-2.26L16 6l-6.144 6.144 2.26 2.26zM6 16l2.26-2.26L10.52 16l-2.26 2.26L6 16zm6.116 1.596L16 21.48l3.886-3.886 2.26 2.259L16 26l-6.144-6.144 2.262-2.258zM21.48 16l2.26-2.26L26 16l-2.26 2.26L21.48 16zm-3.188-.002L16 13.706l-2.314 2.292L16 18.294l2.294-2.294z"/></svg>
-              </div>
-              <span class="price-badge up" id="badge-bnb">+0.00%</span>
-            </div>
-            <div class="coin-nm">BNB</div>
-            <div class="coin-pair-lbl">BNB / USDT</div>
-            <div class="coin-pr" id="price-bnb">$---</div>
-            <div class="coin-ch up" id="change-bnb">▲ Loading...</div>
-            <div class="mini-chart" id="chart-bnb"></div>
-          </div>
-        </div>
-
-        <div class="col-6 col-md-6 col-xl reveal rd4" id="col-xrp">
-          <div class="price-card">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <div class="coin-logo xrp">
-                <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#00aae4"/><path fill="#fff" d="M23 8h2.72l-6.26 6.26a4.96 4.96 0 01-7.02 0L6.28 8H9l4.86 4.86a3.2 3.2 0 004.52 0L23 8zm-13.72 16H6.56l6.3-6.3a4.96 4.96 0 017.02 0L26.2 24H23.5l-4.9-4.9a3.2 3.2 0 00-4.52 0L9.28 24z"/></svg>
-              </div>
-              <span class="price-badge up" id="badge-xrp">+0.00%</span>
-            </div>
-            <div class="coin-nm">XRP</div>
-            <div class="coin-pair-lbl">XRP / USDT</div>
-            <div class="coin-pr" id="price-xrp">$-.--</div>
-            <div class="coin-ch up" id="change-xrp">▲ Loading...</div>
-            <div class="mini-chart" id="chart-xrp"></div>
-          </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl reveal rd5" id="col-sol">
-          <div class="price-card">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <div class="coin-logo sol">
-                <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#1a1a2e"/><g fill="url(#sg2)"><path d="M9.5 20.5h13l-2.5 2.5H7l2.5-2.5zm13-9H9.5L7 9h13l2.5 2.5zm0 4.5H9.5l-2.5 2.5h13l2.5-2.5z"/></g><defs><linearGradient id="sg2" x1="7" y1="16" x2="22.5" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#9945ff"/><stop offset="1" stop-color="#00ffa3"/></linearGradient></defs></svg>
-              </div>
-              <span class="price-badge up" id="badge-sol">+0.00%</span>
-            </div>
-            <div class="coin-nm">SOLANA</div>
-            <div class="coin-pair-lbl">SOL / USDT</div>
-            <div class="coin-pr" id="price-sol">$---</div>
-            <div class="coin-ch up" id="change-sol">▲ Loading...</div>
-            <div class="mini-chart" id="chart-sol"></div>
+        <!-- Right Side: The 3D ASIC Visualizer Canvas Frame -->
+        <div class="mining-visualizer-frame liquid-glass">
+          <canvas id="universe-3d-canvas"></canvas>
+          <div class="universe-helper-text">🖱 Drag to rotate in 3D · Scroll to zoom · Hover parts for diagnostics</div>
+          
+          <!-- WebGL Hover Tooltip Card (Fluid Glass styled) -->
+          <div class="universe-tooltip liquid-glass" id="universe-tooltip">
+            <div class="tooltip-title" id="tooltip-name">ASIC Core</div>
+            <div class="tooltip-pair" id="tooltip-pair">DIAGNOSTICS</div>
+            <div class="tooltip-price" id="tooltip-price">NOMINAL</div>
           </div>
         </div>
       </div>
+    </section>
 
-      <p class="text-center api-status mt-3" id="api-status">Connecting to Binance stream...</p>
-    </div>
-  </section>
+    <!-- LIVE PRICES SECTION -->
+    <section class="prices-section section-padding scroll-reveal" id="prices">
+      <div class="section-heading-container">
+        <span class="section-eyebrow">Live Market Data</span>
+        <h2 class="section-title">Real-Time Prices</h2>
+        <div class="section-divider"></div>
+      </div>
 
-  <!-- ===== ABOUT ===== -->
-  <section class="section-pad dark-section" id="about">
-    <div class="container-fluid px-4 px-lg-5">
-      <div class="row align-items-center gy-5">
-
-        <div class="col-12 col-lg-5 reveal">
-          <div class="about-visual-wrap">
-            <div class="about-orb"></div>
-            <div class="about-center-txt">
-              <div class="about-big">CO</div>
-              <div class="about-sm">CRYPTO ORATOR</div>
+      <div class="prices-grid">
+        <!-- BTC Price Card -->
+        <div class="price-card liquid-glass tilt-card" id="card-btc">
+          <div class="price-card-header">
+            <div class="coin-logo-ring btc">
+              <img src="https://cdn.jsdelivr.net/gh/madenix/Crypto-logo-cdn@main/Logos/BTC.svg" alt="BTC Logo" class="coin-logo-img">
             </div>
-            <div class="chip-wrap">
-              <div class="chip">◆ MARKET ANALYSIS</div>
-              <div class="chip">◆ RISK MANAGEMENT</div>
-              <div class="chip">◆ CHART PATTERNS</div>
-              <div class="chip">◆ ON-CHAIN DATA</div>
-              <div class="chip">◆ DeFi RESEARCH</div>
+            <div class="change-badge up" id="badge-btc">+0.00%</div>
+          </div>
+          <div class="coin-details">
+            <div class="coin-name">BITCOIN</div>
+            <div class="coin-pair">BTC / USDT</div>
+          </div>
+          <div class="coin-current-price" id="price-btc">$--,---.--</div>
+          <div class="coin-percent-chg up" id="change-btc">▲ Loading...</div>
+          <canvas class="sparkline-canvas" id="chart-btc"></canvas>
+        </div>
+
+        <!-- ETH Price Card -->
+        <div class="price-card liquid-glass tilt-card" id="card-eth">
+          <div class="price-card-header">
+            <div class="coin-logo-ring eth">
+              <img src="https://cdn.jsdelivr.net/gh/madenix/Crypto-logo-cdn@main/Logos/ETH.svg" alt="ETH Logo" class="coin-logo-img">
+            </div>
+            <div class="change-badge up" id="badge-eth">+0.00%</div>
+          </div>
+          <div class="coin-details">
+            <div class="coin-name">ETHEREUM</div>
+            <div class="coin-pair">ETH / USDT</div>
+          </div>
+          <div class="coin-current-price" id="price-eth">$--,---.--</div>
+          <div class="coin-percent-chg up" id="change-eth">▲ Loading...</div>
+          <canvas class="sparkline-canvas" id="chart-eth"></canvas>
+        </div>
+
+        <!-- BNB Price Card -->
+        <div class="price-card liquid-glass tilt-card" id="card-bnb">
+          <div class="price-card-header">
+            <div class="coin-logo-ring bnb">
+              <img src="https://cdn.jsdelivr.net/gh/madenix/Crypto-logo-cdn@main/Logos/BNB.svg" alt="BNB Logo" class="coin-logo-img">
+            </div>
+            <div class="change-badge up" id="badge-bnb">+0.00%</div>
+          </div>
+          <div class="coin-details">
+            <div class="coin-name">BNB</div>
+            <div class="coin-pair">BNB / USDT</div>
+          </div>
+          <div class="coin-current-price" id="price-bnb">$--.-</div>
+          <div class="coin-percent-chg up" id="change-bnb">▲ Loading...</div>
+          <canvas class="sparkline-canvas" id="chart-bnb"></canvas>
+        </div>
+
+        <!-- SOL Price Card -->
+        <div class="price-card liquid-glass tilt-card" id="card-sol">
+          <div class="price-card-header">
+            <div class="coin-logo-ring sol">
+              <img src="https://cdn.jsdelivr.net/gh/madenix/Crypto-logo-cdn@main/Logos/SOL.svg" alt="SOL Logo" class="coin-logo-img">
+            </div>
+            <div class="change-badge up" id="badge-sol">+0.00%</div>
+          </div>
+          <div class="coin-details">
+            <div class="coin-name">SOLANA</div>
+            <div class="coin-pair">SOL / USDT</div>
+          </div>
+          <div class="coin-current-price" id="price-sol">$--.-</div>
+          <div class="coin-percent-chg up" id="change-sol">▲ Loading...</div>
+          <canvas class="sparkline-canvas" id="chart-sol"></canvas>
+        </div>
+
+        <!-- XRP Price Card -->
+        <div class="price-card liquid-glass tilt-card" id="card-xrp">
+          <div class="price-card-header">
+            <div class="coin-logo-ring xrp">
+              <img src="https://cdn.jsdelivr.net/gh/madenix/Crypto-logo-cdn@main/Logos/XRP.svg" alt="XRP Logo" class="coin-logo-img">
+            </div>
+            <div class="change-badge up" id="badge-xrp">+0.00%</div>
+          </div>
+          <div class="coin-details">
+            <div class="coin-name">XRP</div>
+            <div class="coin-pair">XRP / USDT</div>
+          </div>
+          <div class="coin-current-price" id="price-xrp">$-.--</div>
+          <div class="coin-percent-chg up" id="change-xrp">▲ Loading...</div>
+          <canvas class="sparkline-canvas" id="chart-xrp"></canvas>
+        </div>
+      </div>
+
+      <div class="stream-status-text mt-3" id="api-status">
+        <span class="status-dot"></span>Connecting to Binance data stream...
+      </div>
+    </section>
+
+    <!-- SYSTEM DIAGNOSTICS SECTION -->
+    <section class="diagnostics-section section-padding scroll-reveal" id="diagnostics">
+      <div class="section-heading-container">
+        <span class="section-eyebrow">Local Network Specs</span>
+        <h2 class="section-title">System Diagnostics</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="diagnostics-grid">
+        <!-- Speedometer gauge card -->
+        <div class="diag-card speedometer-panel liquid-glass tilt-card">
+          <h3 class="diag-panel-title">SPEEDOMETER</h3>
+          <div class="speedometer-container">
+            <svg class="speedometer-dial-svg" viewBox="0 0 100 100">
+              <path d="M20,80 A40,40 0 1,1 80,80" fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="6" stroke-linecap="round"/>
+              <path id="speed-meter-fill" d="M20,80 A40,40 0 1,1 80,80" fill="none" stroke="url(#speedGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
+              <defs>
+                <linearGradient id="speedGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#9333ea" />
+                  <stop offset="50%" stop-color="#2563eb" />
+                  <stop offset="100%" stop-color="#0891b2" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="speedometer-needle-pivot" id="speed-needle"></div>
+            <div class="speedometer-hud-text">
+              <span id="speed-val">0.0</span>
+              <span class="speed-unit">Mbps</span>
+            </div>
+          </div>
+          <button class="btn-primary w-full mt-2" id="speed-test-btn">RUN NETWORK CHECK</button>
+        </div>
+
+        <!-- Network metadata cards -->
+        <div class="diag-card details-panel liquid-glass tilt-card tech-mono">
+          <h3 class="diag-panel-title">NETWORK METRIC</h3>
+          <div class="diagnostics-list">
+            <div class="diag-row">
+              <span class="diag-lbl">PUBLIC IP:</span>
+              <span class="diag-val text-accent-cyan" id="ip-val">FETCHING IP...</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-lbl">ISP CARRIER:</span>
+              <span class="diag-val" id="isp-val">PENDING...</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-lbl">GEOLOCATION:</span>
+              <span class="diag-val" id="loc-val">PENDING...</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-lbl">SYS LATENCY:</span>
+              <span class="diag-val" id="ping-val">-- ms</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-lbl">CON TYPE:</span>
+              <span class="diag-val text-accent-purple" id="conn-val">ONLINE</span>
+            </div>
+          </div>
+          
+          <!-- Cyber Log Output console built-in -->
+          <div class="diag-mini-console">
+            <div class="console-header"><i class="bi bi-terminal"></i> log feed</div>
+            <div class="console-lines" id="terminal-content">
+              <!-- Log entries -->
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="col-12 col-lg-7 reveal">
-          <span class="sec-eyebrow" style="text-align:left;">WHO IS CRYPTO ORATOR</span>
-          <h2 class="about-heading">RESEARCH-DRIVEN.<br><span>STRATEGY-FOCUSED.</span><br>NO SIGNAL HYPE.</h2>
-          <p class="about-desc">Crypto Orator is dedicated to deep research in cryptocurrency markets. The mission is simple — decode market structure, build tested trading strategies, and share knowledge freely. No paid signals, no pump groups — just pure market education.</p>
-          <div class="feat-row"><div class="feat-icon">📊</div><div><span class="feat-strong">Technical Analysis & Strategy Development</span><span class="feat-sub">Building and backtesting new trading strategies across multiple timeframes and market conditions.</span></div></div>
-          <div class="feat-row"><div class="feat-icon">🔬</div><div><span class="feat-strong">Crypto Market Research</span><span class="feat-sub">Deep-dive research into tokenomics, on-chain metrics, and macro market trends.</span></div></div>
-          <div class="feat-row mb-4"><div class="feat-icon">🎓</div><div><span class="feat-strong">Free Education — No Gatekeeping</span><span class="feat-sub">Anyone can reach out to learn about crypto trading. Knowledge is shared openly.</span></div></div>
-          <a href="#connect" class="btn-co-gold">REACH OUT TO LEARN</a>
+    <!-- ABOUT SECTION (Restored fully from original) -->
+    <section class="about-section section-padding scroll-reveal" id="about">
+      <div class="about-grid">
+        <!-- Liquid glass elements bubble -->
+        <div class="about-visual">
+          <div class="about-liquid-orb"></div>
+          <div class="about-center-card liquid-glass tilt-card">
+            <img src="https://cdn.jsdelivr.net/gh/madenix/Crypto-logo-cdn@main/Logos/BTC.svg" alt="BTC Logo" class="about-btc-logo">
+            <span>CRYPTO ORATOR</span>
+          </div>
+          <div class="concept-tag liquid-glass">◆ MARKET ANALYSIS</div>
+          <div class="concept-tag liquid-glass">◆ RISK MANAGEMENT</div>
+          <div class="concept-tag liquid-glass">◆ CHART PATTERNS</div>
+          <div class="concept-tag liquid-glass">◆ ON-CHAIN DATA</div>
+          <div class="concept-tag liquid-glass">◆ DeFi RESEARCH</div>
         </div>
 
+        <!-- About Text Details -->
+        <div class="about-details">
+          <span class="section-eyebrow" style="text-align: left;">Who is Crypto Orator</span>
+          <h2 class="about-heading">Research-Driven.<br><span>Strategy-Focused.</span><br>No Signal Hype.</h2>
+          <p class="about-text">
+            Crypto Orator is dedicated to deep research in cryptocurrency markets. The mission is simple — decode market structure, build tested trading strategies, and share knowledge freely. No paid signals, no pump groups — just pure market education.
+          </p>
+          
+          <div class="features-list">
+            <div class="feature-row">
+              <div class="feature-icon-box">📊</div>
+              <div>
+                <h4 class="feature-title">Technical Analysis &amp; Strategy Development</h4>
+                <p class="feature-description">Building and backtesting new trading strategies across multiple timeframes and market conditions.</p>
+              </div>
+            </div>
+            <div class="feature-row">
+              <div class="feature-icon-box">🔬</div>
+              <div>
+                <h4 class="feature-title">Crypto Market Research</h4>
+                <p class="feature-description">Deep-dive research into tokenomics, on-chain metrics, and macro market trends.</p>
+              </div>
+            </div>
+            <div class="feature-row">
+              <div class="feature-icon-box">🎓</div>
+              <div>
+                <h4 class="feature-title">Free Education — No Gatekeeping</h4>
+                <p class="feature-description">Anyone can reach out to learn about crypto trading. Knowledge is shared openly.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== STRATEGIES ===== -->
-  <section class="section-pad" id="strategies">
-    <div class="container-fluid px-4 px-lg-5">
-
-      <div class="text-center reveal mb-4 mb-lg-5">
-        <span class="sec-eyebrow">AREAS OF RESEARCH</span>
-        <h2 class="sec-heading">TRADING <span>DISCIPLINES</span></h2>
-        <div class="sec-divider"></div>
+    <!-- STRATEGIES SECTION (Restored all 6 fully from original) -->
+    <section class="strategies-section section-padding scroll-reveal" id="strategies">
+      <div class="section-heading-container">
+        <span class="section-eyebrow">Areas of Research</span>
+        <h2 class="section-title">Trading Disciplines</h2>
+        <div class="section-divider"></div>
       </div>
 
-      <div class="row g-3">
-        <div class="col-12 col-sm-6 col-lg-4 reveal rd1"><div class="strat-card"><div class="strat-num">01 / 06</div><div class="strat-ico">📈</div><div class="strat-title">TREND FOLLOWING</div><p class="strat-desc">Identifying and riding macro and micro trends using moving averages, momentum oscillators, and multi-timeframe confluence methods.</p><span class="strat-tag">SWING / POSITION</span></div></div>
-        <div class="col-12 col-sm-6 col-lg-4 reveal rd2"><div class="strat-card"><div class="strat-num">02 / 06</div><div class="strat-ico">⚡</div><div class="strat-title">BREAKOUT TRADING</div><p class="strat-desc">Spotting key consolidation zones, volume accumulation patterns, and executing precise breakout entries with defined risk parameters.</p><span class="strat-tag">INTRADAY / SWING</span></div></div>
-        <div class="col-12 col-sm-6 col-lg-4 reveal rd3"><div class="strat-card"><div class="strat-num">03 / 06</div><div class="strat-ico">🎯</div><div class="strat-title">SUPPORT & RESISTANCE</div><p class="strat-desc">Mapping institutional order blocks, demand/supply zones, and liquidity pools to find high-probability reversal setups.</p><span class="strat-tag">ALL TIMEFRAMES</span></div></div>
-        <div class="col-12 col-sm-6 col-lg-4 reveal rd1"><div class="strat-card"><div class="strat-num">04 / 06</div><div class="strat-ico">🔗</div><div class="strat-title">ON-CHAIN ANALYSIS</div><p class="strat-desc">Reading blockchain data — wallet flows, exchange inflows, whale movements, and miner behavior to anticipate market turning points.</p><span class="strat-tag">MACRO / RESEARCH</span></div></div>
-        <div class="col-12 col-sm-6 col-lg-4 reveal rd2"><div class="strat-card"><div class="strat-num">05 / 06</div><div class="strat-ico">⚖️</div><div class="strat-title">RISK MANAGEMENT</div><p class="strat-desc">Position sizing frameworks, stop-loss discipline, portfolio allocation rules, and psychological frameworks for long-term capital preservation.</p><span class="strat-tag">FUNDAMENTAL</span></div></div>
-        <div class="col-12 col-sm-6 col-lg-4 reveal rd3"><div class="strat-card"><div class="strat-num">06 / 06</div><div class="strat-ico">🌐</div><div class="strat-title">MACRO & SENTIMENT</div><p class="strat-desc">Correlating crypto markets with global macro events, Fed policy, BTC dominance cycles, fear & greed index, and funding rates.</p><span class="strat-tag">RESEARCH</span></div></div>
+      <div class="strategies-grid">
+        <!-- 01 -->
+        <div class="strategy-card liquid-glass tilt-card">
+          <span class="strategy-number">01 / 06</span>
+          <div class="strategy-icon">📈</div>
+          <h3 class="strategy-title">Trend Following</h3>
+          <p class="strategy-desc">Identifying and riding macro and micro trends using moving averages, momentum oscillators, and multi-timeframe confluence methods.</p>
+          <span class="strategy-tag">SWING / POSITION</span>
+        </div>
+
+        <!-- 02 -->
+        <div class="strategy-card liquid-glass tilt-card">
+          <span class="strategy-number">02 / 06</span>
+          <div class="strategy-icon">⚡</div>
+          <h3 class="strategy-title">Breakout Trading</h3>
+          <p class="strategy-desc">Spotting key consolidation zones, volume accumulation patterns, and executing precise breakout entries with defined risk parameters.</p>
+          <span class="strategy-tag">INTRADAY / SWING</span>
+        </div>
+
+        <!-- 03 -->
+        <div class="strategy-card liquid-glass tilt-card">
+          <span class="strategy-number">03 / 06</span>
+          <div class="strategy-icon">🎯</div>
+          <h3 class="strategy-title">Support &amp; Resistance</h3>
+          <p class="strategy-desc">Mapping institutional order blocks, demand/supply zones, and liquidity pools to find high-probability reversal setups.</p>
+          <span class="strategy-tag">ALL TIMEFRAMES</span>
+        </div>
+
+        <!-- 04 -->
+        <div class="strategy-card liquid-glass tilt-card">
+          <span class="strategy-number">04 / 06</span>
+          <div class="strategy-icon">🔗</div>
+          <h3 class="strategy-title">On-Chain Analysis</h3>
+          <p class="strategy-desc">Reading blockchain data — wallet flows, exchange inflows, whale movements, and miner behavior to anticipate market turning points.</p>
+          <span class="strategy-tag">MACRO / RESEARCH</span>
+        </div>
+
+        <!-- 05 -->
+        <div class="strategy-card liquid-glass tilt-card">
+          <span class="strategy-number">05 / 06</span>
+          <div class="strategy-icon">⚖️</div>
+          <h3 class="strategy-title">Risk Management</h3>
+          <p class="strategy-desc">Position sizing frameworks, stop-loss discipline, portfolio allocation rules, and psychological frameworks for long-term capital preservation.</p>
+          <span class="strategy-tag">FUNDAMENTAL</span>
+        </div>
+
+        <!-- 06 -->
+        <div class="strategy-card liquid-glass tilt-card">
+          <span class="strategy-number">06 / 06</span>
+          <div class="strategy-icon">🌐</div>
+          <h3 class="strategy-title">Macro &amp; Sentiment</h3>
+          <p class="strategy-desc">Correlating crypto markets with global macro events, Fed policy, BTC dominance cycles, fear &amp; greed index, and funding rates.</p>
+          <span class="strategy-tag">RESEARCH</span>
+        </div>
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <!-- ===== CONNECT ===== -->
-  <section class="section-pad dark-section" id="connect">
-    <div class="container-fluid px-4 px-lg-5">
-      <div class="connect-box reveal">
+    <!-- CONNECT SECTION (Restored fully from original) -->
+    <section class="connect-section section-padding scroll-reveal" id="connect">
+      <div class="connect-container liquid-glass">
         <div class="connect-grid-bg"></div>
-        <div class="connect-glow"></div>
-        <div class="c-particle" style="width:4px;height:4px;left:10%;animation-duration:6s;"></div>
-        <div class="c-particle" style="width:3px;height:3px;left:35%;animation-duration:8s;animation-delay:1.2s;"></div>
-        <div class="c-particle" style="width:5px;height:5px;left:62%;animation-duration:7s;animation-delay:2s;"></div>
-        <div class="c-particle" style="width:3px;height:3px;left:82%;animation-duration:9s;animation-delay:.5s;"></div>
+        <div class="connect-blob"></div>
 
-        <span class="sec-eyebrow" style="position:relative;z-index:2;"><span class="live-dot"></span>FIND ME ONLINE</span>
-        <h2 class="connect-title">CONNECT WITH <span>CRYPTO ORATOR</span></h2>
-        <p class="connect-desc">Want to learn about crypto trading? Questions about strategies or market structure? Reach out — no gatekeeping, no paywalls.</p>
+        <span class="section-eyebrow">Find Me Online</span>
+        <h2 class="connect-heading">Connect with <span>Crypto Orator</span></h2>
+        <p class="connect-description">
+          Want to learn about crypto trading? Questions about strategies or market structure? Reach out — no gatekeeping, no paywalls.
+        </p>
 
-        <div class="row g-3 justify-content-center" style="position:relative;z-index:2;max-width:720px;margin:0 auto;">
+        <div class="socials-row">
+          <!-- Telegram -->
+          <a href="https://t.me/crypto_orator" target="_blank" class="social-button telegram">
+            <div class="social-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.04 13.947l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.832.953l.276-.341z" fill="#0088cc"/></svg>
+            </div>
+            <div class="social-text">
+              <div class="social-name">Telegram</div>
+              <div class="social-handle">@crypto_orator</div>
+            </div>
+            <span class="social-arrow">›</span>
+          </a>
 
-          <div class="col-12 col-md-4">
-            <a href="https://t.me/crypto_orator" target="_blank" class="soc-btn soc-tg">
-              <div class="soc-ico">
-                <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.04 13.947l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.832.953l.276-.341z" fill="#0088cc"/></svg>
-              </div>
-              <div class="soc-info"><strong>TELEGRAM</strong><span>@crypto_orator</span></div>
-              <span class="soc-arrow">›</span>
-            </a>
-          </div>
+          <!-- Twitter -->
+          <a href="https://x.com/crypto_orator" target="_blank" class="social-button twitter">
+            <div class="social-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="#1e293b"/></svg>
+            </div>
+            <div class="social-text">
+              <div class="social-name">X (Twitter)</div>
+              <div class="social-handle">@crypto_orator</div>
+            </div>
+            <span class="social-arrow">›</span>
+          </a>
 
-          <div class="col-12 col-md-4">
-            <a href="https://x.com/crypto_orator" target="_blank" class="soc-btn soc-tw">
-              <div class="soc-ico">
-                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="#fff"/></svg>
-              </div>
-              <div class="soc-info"><strong>X (TWITTER)</strong><span>@crypto_orator</span></div>
-              <span class="soc-arrow">›</span>
-            </a>
-          </div>
-
-          <div class="col-12 col-md-4">
-            <a href="https://discord.com/users/Crypto_orator" target="_blank" class="soc-btn soc-dc">
-              <div class="soc-ico">
-                <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="#7289da"/></svg>
-              </div>
-              <div class="soc-info"><strong>DISCORD</strong><span>Crypto_orator</span></div>
-              <span class="soc-arrow">›</span>
-            </a>
-          </div>
-
+          <!-- Discord -->
+          <a href="https://discord.com/users/Crypto_orator" target="_blank" class="social-button discord">
+            <div class="social-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="#7289da"/></svg>
+            </div>
+            <div class="social-text">
+              <div class="social-name">Discord</div>
+              <div class="social-handle">Crypto_orator</div>
+            </div>
+            <span class="social-arrow">›</span>
+          </a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== FOOTER ===== -->
-  <footer class="site-footer">
-    <div class="container-fluid px-4 px-lg-5">
-      <div class="row align-items-center gy-2 text-center text-md-start">
-        <div class="col-12 col-md-4"><div class="footer-logo">CRYPTO ORATOR</div></div>
-        <div class="col-12 col-md-4 text-md-center"><div class="footer-copy">© 2025 CRYPTO ORATOR — ALL RIGHTS RESERVED</div></div>
-        <div class="col-12 col-md-4 text-md-end"><div class="footer-disc">Not financial advice. Educational purposes only. Trade responsibly.</div></div>
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-logo">CRYPTO ORATOR</div>
+        <div class="footer-copyright">© 2026 CRYPTO ORATOR — ALL RIGHTS RESERVED</div>
+        <div class="footer-disclaimer">Not financial advice. Educational purposes only. Trade responsibly.</div>
       </div>
+    </footer>
+
+  </div><!-- /content-wrapper -->
+
+  <!-- ============================================================
+     EXTERNAL SCRIPTS (Three.js, GSAP, OrbitControls)
+     ============================================================ */ -->
+  <!-- HUD Alert Notification -->
+  <div class="hud-notification liquid-glass" id="dev-notification">
+    <div class="notification-glow-line"></div>
+    <div class="notification-header">
+      <span class="notification-badge">⚠️ DEV PROTOCOL ACTIVE</span>
+      <button class="notification-close" id="close-notification">&times;</button>
     </div>
-  </footer>
+    <div class="notification-body">
+      This system is under active development. Educational modules and network telemetry diagnostics are currently simulated.
+    </div>
+  </div>
 
-</div><!-- /site-wrapper -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  
+  <!-- Custom JS Modules -->
+  <script src="three-scene.js"></script>
+  <script src="app.js"></script>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-/* ===== CURSOR ===== */
-const cur=document.getElementById('cursor'),curR=document.getElementById('cursor-ring');
-if(window.matchMedia('(pointer:fine)').matches&&cur){
-  let cx=0,cy=0,rx=0,ry=0;
-  document.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY;cur.style.left=cx+'px';cur.style.top=cy+'px';});
-  (function t(){rx+=(cx-rx)*.12;ry+=(cy-ry)*.12;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(t);})();
-  document.querySelectorAll('a,button').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2)';curR.style.transform='translate(-50%,-50%) scale(1.6)';});
-    el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';curR.style.transform='translate(-50%,-50%) scale(1)';});
-  });
-}
-
-/* ===== BG PARTICLE CANVAS ===== */
-const bgC=document.getElementById('bg-canvas'),bgX=bgC.getContext('2d');
-let W,H,pts=[];
-function resizeBg(){W=bgC.width=window.innerWidth;H=bgC.height=window.innerHeight;}
-resizeBg();window.addEventListener('resize',resizeBg);
-class Pt{constructor(){this.reset();}reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-.5)*.25;this.vy=(Math.random()-.5)*.25;this.r=Math.random()*1.2+.3;this.a=Math.random()*.28+.06;}update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>W||this.y<0||this.y>H)this.reset();}draw(){bgX.beginPath();bgX.arc(this.x,this.y,this.r,0,Math.PI*2);bgX.fillStyle=`rgba(240,185,11,${this.a})`;bgX.fill();}}
-for(let i=0;i<80;i++)pts.push(new Pt());
-function drawBg(){bgX.clearRect(0,0,W,H);for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<80){bgX.beginPath();bgX.moveTo(pts[i].x,pts[i].y);bgX.lineTo(pts[j].x,pts[j].y);bgX.strokeStyle=`rgba(240,185,11,${(1-d/80)*.06})`;bgX.lineWidth=.5;bgX.stroke();}}}pts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(drawBg);}
-drawBg();
-
-/* ===== CANDLE BG CANVAS ===== */
-const cc=document.getElementById('candle-canvas');
-if(cc){
-  const cx2=cc.getContext('2d');
-  function resCC(){cc.width=cc.offsetWidth||window.innerWidth;cc.height=cc.offsetHeight||window.innerHeight;}
-  resCC();window.addEventListener('resize',resCC);
-  const cands=[];const cols=['#f0b90b','#0ecb81','#f6465d','#627eea','#00aae4'];
-  for(let i=0;i<16;i++){const h=40+Math.random()*110;cands.push({x:20+i*44,bH:h,bY:.2*cc.height+Math.random()*.4*cc.height,wT:8+Math.random()*35,wB:8+Math.random()*35,col:cols[i%cols.length],spd:.3+Math.random()*.4,off:Math.random()*Math.PI*2});}
-  function drawC(t){cx2.clearRect(0,0,cc.width,cc.height);cands.forEach(c=>{const sw=Math.sin(t*.001*c.spd+c.off)*2,mx=c.x+6+sw;cx2.fillStyle=c.col;cx2.fillRect(mx-1,c.bY-c.wT,2,c.wT);cx2.fillRect(c.x+sw,c.bY,12,c.bH);cx2.fillRect(mx-1,c.bY+c.bH,2,c.wB);});requestAnimationFrame(drawC);}
-  requestAnimationFrame(drawC);
-}
-
-/* ===== SCROLL REVEAL ===== */
-const revEls=document.querySelectorAll('.reveal');
-const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.07});
-revEls.forEach(el=>obs.observe(el));
-
-/* ===== ORBIT SIZING (responsive) ===== */
-function setOrbits(){
-  const arena=document.querySelector('.orbit-arena');
-  if(!arena)return;
-  const S=arena.offsetWidth;
-  const ratios=[.145,.237,.332,.43,.51];
-  const sizes=ratios.map(r=>S*r);
-
-  // Rings
-  const ringEls=['.ring1','.ring2','.ring3','.ring4','.ring5'];
-  ringEls.forEach((s,i)=>{const el=document.querySelector(s);if(el){el.style.width=sizes[i]+'px';el.style.height=sizes[i]+'px';}});
-
-  // Sun
-  const sun=document.getElementById('orb-sun');
-  if(sun){const ss=S*.14;sun.style.width=ss+'px';sun.style.height=ss+'px';}
-
-  // Orbit paths → set size, coin position
-  const durs=[[12,'op1','oc1'],[18,'op2','oc2'],[24,'op3a','oc3a'],[24,'op3b','oc3b'],[30,'op4a','oc4a'],[30,'op4b','oc4b'],[30,'op4c','oc4c'],[38,'op5a','oc5a'],[38,'op5b','oc5b'],[38,'op5c','oc5c']];
-  const rIdx=[0,1,2,2,3,3,3,4,4,4];
-  durs.forEach(([dur,pid,cid],i)=>{
-    const p=document.getElementById(pid),c=document.getElementById(cid);
-    if(!p)return;
-    const sz=sizes[rIdx[i]];
-    p.style.width=sz+'px';p.style.height=sz+'px';
-    if(c){
-      const isMeme=c.classList.contains('orbit-meme');
-      const coinSz=isMeme?Math.max(18,sz*.1):Math.max(24,sz*.13);
-      c.style.width=coinSz+'px';c.style.height=coinSz+'px';
-      c.style.top=(-coinSz/2)+'px';
-      const imgSz=coinSz*.6;
-      const img=c.querySelector('svg');if(img){img.style.width=imgSz+'px';img.style.height=imgSz+'px';}
-    }
-  });
-}
-window.addEventListener('resize',setOrbits);
-setTimeout(setOrbits,50);
-
-/* ===== LIVE PRICES — WebSocket ===== */
-const symMap={btcusdt:'btc',ethusdt:'eth',bnbusdt:'bnb',xrpusdt:'xrp',solusdt:'sol'};
-const hist={btc:[],eth:[],bnb:[],xrp:[],sol:[]};
-function fmtP(sym,p){p=parseFloat(p);if(sym==='xrp')return'$'+p.toFixed(4);if(p>=1000)return'$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return'$'+p.toFixed(2);}
-function flashEl(el,up){el.style.color=up?'#0ecb81':'#f6465d';setTimeout(()=>{el.style.color=up?'var(--text)':'#f6465d';},500);}
-function drawChart(cont,prices,up){if(prices.length<2)return;const w=cont.offsetWidth||160,h=32;const mn=Math.min(...prices),mx=Math.max(...prices),rng=mx-mn||1;const pts=prices.map((p,i)=>(`${(i/(prices.length-1))*w},${h-((p-mn)/rng)*(h-4)-2}`));const col=up?'#0ecb81':'#f6465d';cont.innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs><linearGradient id="gc${cont.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".35"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polyline points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polygon points="0,${h} ${pts.join(' ')} ${w},${h}" fill="url(#gc${cont.id})"/></svg>`;}
-function updateCard(sym,price,chg){const up=chg>=0;hist[sym].push(price);if(hist[sym].length>30)hist[sym].shift();const pEl=document.getElementById('price-'+sym),cEl=document.getElementById('change-'+sym),bEl=document.getElementById('badge-'+sym),ch=document.getElementById('chart-'+sym);if(pEl){const f=fmtP(sym,price);if(pEl.textContent!==f){flashEl(pEl,up);pEl.textContent=f;}}if(cEl){cEl.textContent=(up?'▲':'▼')+' '+Math.abs(chg).toFixed(2)+'% (24h)';cEl.className='coin-ch '+(up?'up':'dn');}if(bEl){bEl.textContent=(up?'+':'')+chg.toFixed(2)+'%';bEl.className='price-badge '+(up?'up':'dn');}if(ch)drawChart(ch,hist[sym],up);}
-
-/* Ticker */
-const tN={btc:'BTC/USDT',eth:'ETH/USDT',bnb:'BNB/USDT',xrp:'XRP/USDT',sol:'SOL/USDT'};
-const tS={btc:{p:'$—',c:0},eth:{p:'$—',c:0},bnb:{p:'$—',c:0},xrp:{p:'$—',c:0},sol:{p:'$—',c:0}};
-function buildTicker(){const h=Object.keys(tN).map(s=>{const t=tS[s],u=t.c>=0;return`<div class="ticker-item"><span class="t-sym">${tN[s]}</span><span>${t.p}</span><span class="t-chg ${u?'up':'dn'}">${u?'▲':'▼'}${Math.abs(t.c).toFixed(2)}%</span></div>`;}).join('');const tr=document.getElementById('ticker-track');tr.innerHTML=h+h;}
-function updTicker(sym,price,chg){tS[sym]={p:fmtP(sym,price),c:chg};buildTicker();}
-buildTicker();
-
-async function seedPrices(){
-  try{
-    const syms=['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','SOLUSDT'].map(s=>`"${s}"`).join(',');
-    const res=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=[${syms}]`);
-    const data=await res.json();
-    if(Array.isArray(data)){data.forEach(d=>{const sym=symMap[d.s.toLowerCase()];if(!sym)return;const p=parseFloat(d.lastPrice),c=parseFloat(d.priceChangePercent);updateCard(sym,p,c);updTicker(sym,p,c);});}
-  }catch(e){}
-  connectWS();
-}
-function connectWS(){
-  const streams=Object.keys(symMap).map(s=>s+'@ticker').join('/');
-  const ws=new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
-  ws.onopen=()=>{document.getElementById('api-status').innerHTML='<span class="live-dot"></span> WebSocket live · real-time stream · Binance';};
-  ws.onmessage=ev=>{try{const m=JSON.parse(ev.data),d=m.data;if(!d||!d.s)return;const sym=symMap[d.s.toLowerCase()];if(!sym)return;updateCard(sym,parseFloat(d.c),parseFloat(d.P));updTicker(sym,parseFloat(d.c),parseFloat(d.P));}catch(e){}};
-  ws.onerror=()=>{ws.close();};
-  ws.onclose=()=>{document.getElementById('api-status').textContent='⟳ Reconnecting...';setTimeout(connectWS,3000);};
-}
-seedPrices();
-
-/* ===== NAVBAR HEIGHT CSS VAR UPDATE ===== */
-function updateNavH(){
-  const n=document.querySelector('nav');
-  if(n)document.documentElement.style.setProperty('--nav-h',n.offsetHeight+'px');
-}
-updateNavH();window.addEventListener('resize',updateNavH);
-
-/* Close navbar on mobile link click */
-document.querySelectorAll('#navMenu .nav-link, #navMenu .nav-cta-btn').forEach(a=>{
-  a.addEventListener('click',()=>{
-    const collapseEl=document.getElementById('navMenu');
-    const bsCollapse=bootstrap.Collapse.getInstance(collapseEl);
-    if(bsCollapse)bsCollapse.hide();
-  });
-});
-</script>
 </body>
 </html>
