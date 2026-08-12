@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Next-gen Apple Liquid Glassmorphism Download Page with interactive Cloud Data Rain animation.">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           1. DESIGN SYSTEM & TOKENS
+           ========================================================================== */
+        :root {
+            --bg-dark: #030305;
+            --apple-blue: #007AFF;
+            --apple-blue-bright: #3395FF;
+            --apple-blue-glow: rgba(0, 122, 255, 0.55);
+            --apple-purple: #BF5AF2;
+            --apple-pink: #FF375F;
+            --apple-orange: #FF9F0A;
+            --apple-cyan: #64D2FF;
+            --apple-green: #30D158;
+            
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-bg-hover: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-border-hover: rgba(255, 255, 255, 0.35);
+            
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.72);
+            --text-muted: rgba(255, 255, 255, 0.45);
+            
+            --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            --radius-card: 36px;
+            --radius-icon: 24px;
+            --radius-btn: 18px;
+            --radius-pill: 30px;
+        }
+
+        /* ==========================================================================
+           2. BASE & CANVAS SETUP
+           ========================================================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            perspective: 1200px;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ==========================================================================
+           3. ANIMATED BACKGROUND LIQUID BLOBS
+           ========================================================================== */
+        .liquid-container {
+            position: fixed;
+            inset: -10%;
+            width: 120%;
+            height: 120%;
+            overflow: hidden;
+            z-index: 0;
+            filter: blur(80px) saturate(190%);
+            opacity: 0.9;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            mix-blend-mode: screen;
+            animation: liquidMorph 18s infinite ease-in-out alternate;
+            will-change: transform, border-radius;
+        }
+
+        .blob-1 {
+            width: 540px;
+            height: 540px;
+            background: radial-gradient(circle, var(--apple-blue) 0%, rgba(0, 122, 255, 0) 70%);
+            top: 8%;
+            left: 12%;
+            animation-duration: 16s;
+        }
+
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--apple-purple) 0%, rgba(191, 90, 242, 0) 70%);
+            bottom: 5%;
+            right: 8%;
+            animation-duration: 22s;
+            animation-delay: -4s;
+        }
+
+        .blob-3 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, var(--apple-orange) 0%, rgba(255, 159, 10, 0) 70%);
+            top: 45%;
+            left: 45%;
+            transform: translate(-50%, -50%);
+            animation-duration: 24s;
+            animation-delay: -8s;
+        }
+
+        .blob-4 {
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, var(--apple-cyan) 0%, rgba(100, 210, 255, 0) 70%);
+            top: 15%;
+            right: 18%;
+            animation-duration: 20s;
+            animation-delay: -10s;
+        }
+
+        .cursor-fluid {
+            position: fixed;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 122, 255, 0.45) 0%, rgba(191, 90, 242, 0.2) 40%, rgba(0, 0, 0, 0) 75%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(60px);
+        }
+
+        @keyframes liquidMorph {
+            0% {
+                border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            33% {
+                border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
+                transform: translate(60px, -80px) rotate(120deg) scale(1.1);
+            }
+            66% {
+                border-radius: 30% 70% 30% 70% / 50% 30% 70% 50%;
+                transform: translate(-50px, 50px) rotate(240deg) scale(0.95);
+            }
+            100% {
+                border-radius: 60% 40% 60% 40% / 70% 40% 50% 60%;
+                transform: translate(40px, -30px) rotate(360deg) scale(1.05);
+            }
+        }
+
+        /* ==========================================================================
+           4. MAIN GLASS CARD
+           ========================================================================== */
+        .main-wrapper {
+            position: relative;
+            z-index: 10;
+            padding: 24px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .glass-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.045);
+            backdrop-filter: blur(50px) saturate(220%);
+            -webkit-backdrop-filter: blur(50px) saturate(220%);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-card);
+            padding: 42px 36px;
+            text-align: center;
+            box-shadow: 
+                0 35px 70px -15px rgba(0, 0, 0, 0.75),
+                0 20px 40px -20px rgba(0, 0, 0, 0.9),
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.35),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.5);
+            transform-style: preserve-3d;
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+            overflow: hidden;
+        }
+
+        .glass-card-border-glow {
+            position: absolute;
+            inset: -2px;
+            border-radius: calc(var(--radius-card) + 2px);
+            background: conic-gradient(from var(--border-angle, 0deg), 
+                transparent 0%, 
+                rgba(0, 122, 255, 0.6) 20%, 
+                rgba(191, 90, 242, 0.6) 40%, 
+                rgba(255, 159, 10, 0.5) 60%, 
+                transparent 80%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            filter: blur(4px);
+        }
+
+        .glass-card:hover .glass-card-border-glow {
+            opacity: 0.75;
+        }
+
+        .glass-card-shine {
+            position: absolute;
+            inset: -100%;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.16) 0%, transparent 45%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .glass-card:hover {
+            border-color: var(--glass-border-hover);
+            box-shadow: 
+                0 45px 90px -15px rgba(0, 0, 0, 0.85),
+                0 30px 60px -20px rgba(0, 122, 255, 0.3),
+                inset 0 2px 3px rgba(255, 255, 255, 0.5),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        .glass-card:hover .glass-card-shine {
+            opacity: 1;
+        }
+
+        /* Security Verification Badge */
+        .badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: var(--radius-pill);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 28px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .badge-verified .dot-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .badge-verified .dot {
+            width: 7px;
+            height: 7px;
+            background-color: var(--apple-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--apple-green);
+        }
+
+        .badge-verified .dot-pulse {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 1.5px solid var(--apple-green);
+            animation: pingPulse 1.8s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+        }
+
+        @keyframes pingPulse {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        /* iOS App Icon Style Container */
+        .icon-wrapper {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .icon-halo {
+            position: absolute;
+            inset: -10px;
+            border-radius: 32px;
+            background: radial-gradient(circle, rgba(0, 122, 255, 0.4) 0%, rgba(191, 90, 242, 0.2) 60%, transparent 80%);
+            filter: blur(12px);
+            animation: haloPulse 4s infinite alternate ease-in-out;
+        }
+
+        @keyframes haloPulse {
+            0% { opacity: 0.4; transform: scale(0.95); }
+            100% { opacity: 0.95; transform: scale(1.12); }
+        }
+
+        .icon-container {
+            width: 90px;
+            height: 90px;
+            border-radius: var(--radius-icon);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 
+                0 16px 36px rgba(0, 0, 0, 0.45),
+                inset 0 1.5px 2px rgba(255, 255, 255, 0.6),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 2;
+        }
+
+        .icon-container i {
+            font-size: 2.6rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, #64D2FF 50%, #007AFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 6px 14px rgba(0, 122, 255, 0.45));
+        }
+
+        /* File Titles */
+        .file-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .file-subtitle {
+            font-size: 0.92rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* File Specs Pill Grid */
+        .file-specs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 18px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(10px);
+        }
+
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .spec-item i {
+            font-size: 0.78rem;
+            color: var(--apple-cyan);
+        }
+
+        .spec-divider {
+            width: 1px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ==========================================================================
+           5. SPECIAL CLOUD DATA FALL ANIMATION STAGE (MATITE DATA PORE JACCHE)
+           ========================================================================== */
+        .cloud-stage-container {
+            display: none;
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            animation: fadeInStage 0.4s ease forwards;
+        }
+
+        @keyframes fadeInStage {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Top Cloud Element */
+        .cloud-header {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .cloud-icon {
+            font-size: 2.8rem;
+            background: linear-gradient(180deg, #FFFFFF 0%, #64D2FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(100, 210, 255, 0.8));
+            animation: cloudFloat 2.5s infinite ease-in-out alternate;
+        }
+
+        @keyframes cloudFloat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-6px); }
+        }
+
+        /* Falling Data Stream Canvas */
+        #dataRainCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Bottom Landing Platform / Ground Container (Matite Data Storage) */
+        .ground-container {
+            position: relative;
+            width: 100%;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 5;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Rising Liquid Level inside Ground Container */
+        .ground-liquid-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #007AFF 0%, #30D158 100%);
+            transition: width 0.15s ease-out;
+            z-index: 1;
+            box-shadow: 0 0 20px rgba(48, 209, 88, 0.8);
+        }
+
+        .ground-text {
+            position: relative;
+            z-index: 2;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: 0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* ==========================================================================
+           6. BUTTONS & ACTIONS
+           ========================================================================== */
+        .action-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 18px 28px;
+            background: linear-gradient(180deg, #007AFF 0%, #0056B3 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: var(--radius-btn);
+            color: #FFFFFF;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 
+                0 10px 30px var(--apple-blue-glow),
+                inset 0 1.5px 0 rgba(255, 255, 255, 0.45);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.015);
+            background: linear-gradient(180deg, #1A87FF 0%, #0062CC 100%);
+            box-shadow: 0 14px 35px rgba(0, 122, 255, 0.65);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(0.985);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 22px;
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-btn);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            transition: all 0.25s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--glass-bg-hover);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+        }
+
+        .footer-note {
+            margin-top: 26px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .footer-note i {
+            color: var(--apple-cyan);
+        }
+
+        @media (max-width: 480px) {
+            .main-wrapper { padding: 16px; }
+            .glass-card { padding: 32px 20px; }
+            .cloud-stage-container { height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Texture Layer -->
+    <div class="noise-overlay" aria-hidden="true"></div>
+
+    <!-- Animated Background Blobs -->
+    <div class="liquid-container" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+    </div>
+
+    <!-- Mouse Tracking Fluid Cursor Glow -->
+    <div class="cursor-fluid" id="cursorFluid" aria-hidden="true"></div>
+
+    <!-- Main Card Container -->
+    <main class="main-wrapper">
+        <article class="glass-card" id="glassCard">
+            <!-- Animated Specular Edge Glow -->
+            <div class="glass-card-border-glow" id="borderGlow"></div>
+            <div class="glass-card-shine" id="cardShine"></div>
+            
+            <!-- Security Badge -->
+            <div class="badge-verified">
+                <div class="dot-wrapper">
+                    <span class="dot"></span>
+                    <span class="dot-pulse"></span>
+                </div>
+                <span>End-to-End Encrypted Cloud Server</span>
+            </div>
+
+            <!-- iOS App Icon Squircle Container -->
+            <div class="icon-wrapper">
+                <div class="icon-halo"></div>
+                <div class="icon-container" aria-label="ZIP Archive Icon">
+                    <i class="fa-solid fa-file-zipper"></i>
+                </div>
+            </div>
+
+            <!-- File Details -->
+            <h1 class="file-title">NAFIUL KARIM</h1>
+            <p class="file-subtitle">Secured By<b> <a href="https://cryptoorator.com" target="_blank" color:"--apple-green" > CRYPTO ORATOR </a> </b></p>
+
+            <!-- Specs Grid -->
+            <div class="file-specs">
+                <div class="spec-item">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    <span>157 MB</span>
+                </div>
+                <div class="spec-divider"></div>
+                <div class="spec-item">
+                    <i class="fa-solid fa-shield-check"></i>
+                    <span>SHA-256 Verified</span>
+                </div>
+                <div class="spec-divider"></div>
+                <div class="spec-item">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>High Speed</span>
+                </div>
+            </div>
+
+            <!-- ANIMATED CLOUD-TO-GROUND DATA FALL STAGE (Shown on Click) -->
+            <div class="cloud-stage-container" id="cloudStage">
+                <div class="cloud-header">
+                    <i class="fa-solid fa-cloud-arrow-down cloud-icon"></i>
+                </div>
+
+                <!-- Canvas for Data Packets Falling down to Ground -->
+                <canvas id="dataRainCanvas"></canvas>
+
+                <!-- Ground Container / Local Storage Disk -->
+                <div class="ground-container">
+                    <div class="ground-liquid-fill" id="groundFill"></div>
+                    <div class="ground-text">
+                        <i class="fa-solid fa-hard-drive"></i>
+                        <span id="groundStatusText">Cloud Data Raining to Local Drive... (0%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-group">
+                <!-- Primary Download Button -->
+                <a href="https://github.com/pubgvaibd-lang/main/archive/refs/heads/main.zip" 
+                   download="main.zip"
+                   class="btn-primary" 
+                   id="downloadBtn" 
+                   aria-label="Download main.zip file from GitHub">
+                    <i class="fa-solid fa-cloud-arrow-down" id="btnIcon"></i>
+                    <span id="btnText">Download File</span>
+                </a>
+
+                <!-- Secondary Website Button -->
+                <a href="https://cryptoorator.com" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn-secondary" 
+                   aria-label="Visit Main Website Cryptoorator">
+                    <span>Main Website</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+
+            <!-- Footer Lock Note -->
+            <div class="footer-note">
+                <i class="fa-solid fa-lock"></i>
+                <span>Protected by Cryptoorator Cloud Encryption</span>
+            </div>
+        </article>
+    </main>
+
+    <!-- Cloud-to-Ground Data Fall Animation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const card = document.getElementById('glassCard');
+            const cursorFluid = document.getElementById('cursorFluid');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const btnIcon = document.getElementById('btnIcon');
+            const btnText = document.getElementById('btnText');
+            const cloudStage = document.getElementById('cloudStage');
+            const groundFill = document.getElementById('groundFill');
+            const groundStatusText = document.getElementById('groundStatusText');
+            
+            const canvas = document.getElementById('dataRainCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // 1. Mouse Tilt Physics
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let fluidX = mouseX;
+            let fluidY = mouseY;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                if (card) {
+                    const rect = card.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const rotateX = ((e.clientY - centerY) / (rect.height / 2)) * -6;
+                    const rotateY = ((e.clientX - centerX) / (rect.width / 2)) * 6;
+
+                    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                }
+            });
+
+            function animateCursor() {
+                fluidX += (mouseX - fluidX) * 0.08;
+                fluidY += (mouseY - fluidY) * 0.08;
+                if (cursorFluid) {
+                    cursorFluid.style.left = `${fluidX}px`;
+                    cursorFluid.style.top = `${fluidY}px`;
+                }
+                requestAnimationFrame(animateCursor);
+            }
+            animateCursor();
+
+            // 2. DATA DROPS RAIN ENGINE (CLOUD TO GROUND)
+            let rainParticles = [];
+            let isRaining = false;
+            let animationFrameId = null;
+
+            function resizeRainCanvas() {
+                if (cloudStage) {
+                    canvas.width = cloudStage.clientWidth;
+                    canvas.height = cloudStage.clientHeight;
+                }
+            }
+
+            class DataDrop {
+                constructor() {
+                    this.reset();
+                }
+                reset() {
+                    // Start near top center under the Cloud icon
+                    this.x = (canvas.width / 2) + (Math.random() * 90 - 45);
+                    this.y = 45; // Below cloud
+                    this.size = Math.random() * 4 + 3;
+                    this.speedY = Math.random() * 6 + 5; // Acceleration down to ground
+                    this.color = ['#64D2FF', '#007AFF', '#30D158', '#BF5AF2'][Math.floor(Math.random() * 4)];
+                    this.length = Math.random() * 12 + 8; // Tail length
+                    this.isBinary = Math.random() > 0.5;
+                    this.char = Math.random() > 0.5 ? '1' : '0';
+                }
+                update() {
+                    this.y += this.speedY;
+                    // Reset when reaching ground container bottom
+                    if (this.y >= canvas.height - 45) {
+                        // Impact shockwave particle trigger
+                        createImpactSplash(this.x, canvas.height - 45, this.color);
+                        this.reset();
+                    }
+                }
+                draw() {
+                    ctx.save();
+                    if (this.isBinary) {
+                        ctx.font = 'bold 11px sans-serif';
+                        ctx.fillStyle = this.color;
+                        ctx.shadowColor = this.color;
+                        ctx.shadowBlur = 8;
+                        ctx.fillText(this.char, this.x, this.y);
+                    } else {
+                        // Glowing droplet with stream tail
+                        const grad = ctx.createLinearGradient(this.x, this.y - this.length, this.x, this.y);
+                        grad.addColorStop(0, 'transparent');
+                        grad.addColorStop(1, this.color);
+
+                        ctx.strokeStyle = grad;
+                        ctx.lineWidth = this.size;
+                        ctx.lineCap = 'round';
+                        ctx.shadowColor = this.color;
+                        ctx.shadowBlur = 10;
+
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y - this.length);
+                        ctx.lineTo(this.x, this.y);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+            }
+
+            // Impact Splash Particles on Landing
+            let splashes = [];
+            function createImpactSplash(x, y, color) {
+                for (let i = 0; i < 3; i++) {
+                    splashes.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() * -3) - 1,
+                        alpha: 1,
+                        color: color,
+                        radius: Math.random() * 2 + 1
+                    });
+                }
+            }
+
+            function updateAndDrawSplashes() {
+                for (let i = splashes.length - 1; i >= 0; i--) {
+                    let s = splashes[i];
+                    s.x += s.vx;
+                    s.y += s.vy;
+                    s.alpha -= 0.05;
+                    if (s.alpha <= 0) {
+                        splashes.splice(i, 1);
+                        continue;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = s.alpha;
+                    ctx.fillStyle = s.color;
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            function animateDataRain() {
+                if (!isRaining) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                rainParticles.forEach(drop => {
+                    drop.update();
+                    drop.draw();
+                });
+
+                updateAndDrawSplashes();
+
+                animationFrameId = requestAnimationFrame(animateDataRain);
+            }
+
+            // 3. CLICK TRIGGER FOR CLOUD DATA FALL ANIMATION
+            let downloadStarted = false;
+
+            downloadBtn.addEventListener('click', (e) => {
+                if (downloadStarted) return;
+                downloadStarted = true;
+                e.preventDefault();
+
+                // Show Cloud Data Fall Stage
+                cloudStage.style.display = 'flex';
+                resizeRainCanvas();
+
+                // Initialize 30 Data Droplets
+                rainParticles = [];
+                for (let i = 0; i < 30; i++) {
+                    const drop = new DataDrop();
+                    // Offset initial positions for smooth cascade
+                    drop.y = Math.random() * (canvas.height - 90) + 40;
+                    rainParticles.push(drop);
+                }
+
+                isRaining = true;
+                animateDataRain();
+
+                // Update Button State
+                btnText.textContent = 'Raining Data from Cloud...';
+                btnIcon.className = 'fa-solid fa-cloud-arrow-down fa-bounce';
+
+                // Progress simulation (Data falling into Ground Container)
+                let progress = 0;
+                groundFill.style.width = '0%';
+
+                const progressInterval = setInterval(() => {
+                    progress += Math.floor(Math.random() * 12 + 6);
+
+                    if (progress >= 100) {
+                        progress = 100;
+                        groundFill.style.width = '100%';
+                        groundStatusText.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #30D158;"></i> Data Received! Starting Download (100%)`;
+                        
+                        clearInterval(progressInterval);
+
+                        btnText.textContent = 'Downloading main.zip...';
+                        btnIcon.className = 'fa-solid fa-circle-notch fa-spin';
+
+                        // Trigger direct GitHub ZIP download after cloud data rain lands
+                        setTimeout(() => {
+                            isRaining = false;
+                            cancelAnimationFrame(animationFrameId);
+
+                            // Trigger direct download window
+                            window.location.href = downloadBtn.href;
+
+                            btnText.textContent = 'Download Started ✓';
+                            btnIcon.className = 'fa-solid fa-circle-check';
+
+                            // Reset after 3.5 seconds
+                            setTimeout(() => {
+                                cloudStage.style.display = 'none';
+                                btnText.textContent = 'Download File';
+                                btnIcon.className = 'fa-solid fa-cloud-arrow-down';
+                                downloadStarted = false;
+                            }, 3500);
+                        }, 1000);
+
+                    } else {
+                        groundFill.style.width = `${progress}%`;
+                        groundStatusText.textContent = `Cloud Data Raining to Local Drive... (${progress}%)`;
+                    }
+                }, 160);
+            });
+        });
+    </script>
+</body>
+</html>
