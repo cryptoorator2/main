@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crypto Orator — Forex & Crypto Trading Support</title>
+<style>
+:root{--blue:#2f8bff;--green:#19e6a1;--ink:#eef6ff;--mute:#9db3c9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:150px}
+body{font-family:"Sora","Segoe UI",system-ui,sans-serif;color:var(--ink);background:#05080f;min-height:100vh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-2;background:url(bg.jpg) center/cover no-repeat fixed,radial-gradient(60% 50% at 20% 15%,#0d3a6b 0,transparent 70%),radial-gradient(50% 50% at 85% 80%,#0a5a46 0,transparent 70%),#05080f}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,6,14,.55),rgba(3,6,14,.8))}
+.glass{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.13),rgba(255,255,255,.03));backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(47,139,255,.25),0 0 0 1px rgba(47,139,255,.12),0 10px 40px rgba(0,0,0,.45),0 0 30px rgba(47,139,255,.1);transition:box-shadow .4s,transform .4s}
+.glass::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s}
+.glass::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(240px circle at var(--mx,50%) var(--my,0%),rgba(120,200,255,.18),transparent 60%);opacity:0;transition:opacity .3s}
+.glass:hover::after{transform:translateX(120%)}.glass:hover::before{opacity:1}
+.glass:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 1px rgba(25,230,161,.35),0 14px 50px rgba(0,0,0,.5),0 0 45px rgba(25,230,161,.22)}
+a{color:inherit;text-decoration:none}
+/* preloader */
+#pre{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#0a1a33,#03060e);transition:opacity .9s,visibility .9s}
+#pre.done{opacity:0;visibility:hidden}
+#pre .box{padding:28px 32px;border-radius:32px;text-align:center;width:min(460px,90vw)}
+#pre canvas{width:100%;height:200px;display:block}
+#pre p{margin-top:14px;font-size:.85rem;color:var(--mute);letter-spacing:.06em}
+.bar{height:4px;border-radius:4px;background:rgba(255,255,255,.1);margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));box-shadow:0 0 12px var(--green)}
+/* layout */
+.wrap{width:min(1100px,92vw);margin:0 auto;display:flex;flex-direction:column;gap:22px;padding:14px 0 120px}
+.slot{will-change:transform,opacity}
+.pre-asm .slot{opacity:0}
+header.slot{position:sticky;top:10px;z-index:20;display:flex;flex-direction:column;gap:10px}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px 10px 20px;border-radius:999px;flex-wrap:wrap}
+.logo{font-weight:700;letter-spacing:.02em}.logo b{color:var(--green);text-shadow:0 0 14px var(--green)}
+.nav nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav nav a,.soc a{padding:8px 14px;border-radius:999px;font-size:.88rem;color:var(--mute);transition:.3s}
+.nav nav a:hover{color:#fff;background:rgba(255,255,255,.1)}
+.soc{display:flex;gap:6px}.soc a{padding:0;width:38px;height:38px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06)}
+.soc a:hover{color:#fff;box-shadow:0 0 18px var(--blue);border-color:var(--blue)}
+.soc svg{width:18px;height:18px;fill:currentColor}
+.ticker{border-radius:999px;padding:10px 0;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.track{display:flex;width:max-content;animation:run 28s linear infinite}
+.ticker:hover .track{animation-play-state:paused}
+.track span{padding:0 28px;font-size:.9rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.track em{font-style:normal;color:var(--mute);margin-right:8px}
+.up{color:var(--green)}.dn{color:#ff5d7a}
+@keyframes run{to{transform:translateX(-50%)}}
+.hero{border-radius:40px;padding:clamp(34px,7vw,84px) clamp(22px,5vw,64px);text-align:left}
+.hero h1{font-size:clamp(2.2rem,6.2vw,4.8rem);line-height:1.02;letter-spacing:-.03em;font-weight:800;max-width:14ch}
+.hero h1 span{background:linear-gradient(90deg,var(--blue),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(25,230,161,.35))}
+.hero p{margin:22px 0 32px;max-width:52ch;color:var(--mute);font-size:1.05rem;line-height:1.65}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:16px 30px;border-radius:999px;font-weight:700;color:#fff;background:linear-gradient(135deg,rgba(47,139,255,.55),rgba(25,230,161,.4));border:1px solid rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 0 34px rgba(47,139,255,.45),0 0 60px rgba(25,230,161,.2);animation:pulse 3s infinite}
+.btn svg{width:20px;height:20px;fill:#fff}
+@keyframes pulse{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 0 46px rgba(47,139,255,.7),0 0 80px rgba(25,230,161,.4)}}
+.sec h2{font-size:clamp(1.6rem,3.6vw,2.4rem);letter-spacing:-.02em;margin:6px 6px 4px}
+.sec>p{margin:0 6px 20px;color:var(--mute);max-width:60ch;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{border-radius:28px;padding:26px}
+.card:hover{transform:translateY(-6px)}
+.card .ic{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;margin-bottom:16px;border:1px solid rgba(255,255,255,.25);background:rgba(47,139,255,.18);box-shadow:0 0 20px rgba(47,139,255,.4)}
+.card:nth-child(even) .ic{background:rgba(25,230,161,.16);box-shadow:0 0 20px rgba(25,230,161,.4)}
+.card svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font-size:1.15rem;margin-bottom:8px}.card p{color:var(--mute);font-size:.93rem;line-height:1.6}
+.cta{border-radius:36px;padding:clamp(28px,5vw,54px);text-align:center}
+.cta h2{font-size:clamp(1.5rem,3.6vw,2.4rem);letter-spacing:-.02em;margin-bottom:10px}
+.cta p{color:var(--mute);margin-bottom:24px}
+footer.slot{border-radius:28px;padding:22px 26px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+footer small{color:var(--mute);max-width:80ch;line-height:1.6;font-size:.78rem}
+.fab{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:50;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,rgba(47,139,255,.6),rgba(25,230,161,.45));animation:float 3.5s ease-in-out infinite,pulse 3s infinite}
+.fab svg{width:30px;height:30px;fill:#fff}
+@keyframes float{50%{transform:translateY(-8px)}}
+/* labourer agents */
+.bot{position:fixed;left:0;top:0;z-index:90;width:34px;height:34px;pointer-events:none;filter:drop-shadow(0 0 8px var(--green))}
+.bot svg{width:100%;height:100%}
+.bot .beam{animation:spin 1s linear infinite;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spark{position:fixed;z-index:89;width:4px;height:4px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);pointer-events:none}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+@media(max-width:640px){.nav nav{display:none}}
+@media(prefers-reduced-motion:reduce){.track,.btn,.fab{animation:none}.glass::after{display:none}}
+</style></head>
+<body>
+<div class="bg"></div>
+
+<div id="pre"><div class="box glass"><canvas id="cv" width="800" height="400"></canvas><div class="bar"><i id="pb"></i></div><p>Loading live market view…</p></div></div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="tg" viewBox="0 0 24 24"><path d="M21.5 3.3 2.9 10.5c-1.3.5-1.2 1.2-.2 1.5l4.7 1.5 1.8 5.5c.2.6.4.8.8.8s.6-.2.9-.5l2.3-2.3 4.7 3.5c.9.5 1.5.2 1.7-.8L22.9 4.7c.3-1.2-.5-1.8-1.4-1.4ZM8.6 13.2l9.6-6c.5-.3.9-.1.6.2l-8 7.2-.3 3.4-1.9-4.8Z"/></symbol>
+<symbol id="x" viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.7l-5.2-6.8-6 6.8H1.6l7.7-8.8L1.2 2.3H8l4.7 6.2 5.5-6.2Zm-1.2 17.5h1.8L7.1 4.2H5.1L17 19.8Z"/></symbol>
+<symbol id="mail" viewBox="0 0 24 24"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm9 7.2L4.5 7v1.4L12 13.6l7.5-5.2V7L12 12.2Z"/></symbol>
+</defs></svg>
+
+<div class="wrap pre-asm" id="wrap">
+<header class="slot" data-from="top">
+ <div class="nav glass">
+  <a class="logo" href="#top">Crypto<b>Orator</b></a>
+  <nav><a href="#top">Home</a><a href="#method">Methodology</a><a href="#contact">Contact</a></nav>
+  <div class="soc">
+   <a href="https://t.me/crypto_orator" aria-label="Telegram" target="_blank" rel="noopener"><svg><use href="#tg"/></svg></a>
+   <a href="https://x.com/crypto_orator" aria-label="X / Twitter" target="_blank" rel="noopener"><svg><use href="#x"/></svg></a>
+   <a href="mailto:info@cryptoorator.com" aria-label="Email"><svg><use href="#mail"/></svg></a>
+  </div>
+ </div>
+ <div class="ticker glass slot-t" aria-label="Price ticker"><div class="track" id="track"></div></div>
+</header>
+
+<section class="hero glass slot" id="top" data-from="left">
+ <h1>Trade with a mentor beside you.</h1>
+ <p>One-on-one personal trading support and market analysis for new Forex and crypto traders. Learn to read price, plan entries, and manage risk with clear, step-by-step guidance.</p>
+ <a class="btn" href="https://t.me/crypto_orator" target="_blank" rel="noopener"><svg><use href="#tg"/></svg>Message me on Telegram</a>
+</section>
+
+<section class="sec slot" id="method" data-from="right">
+ <h2>How I read the market</h2>
+ <p>Five price-action concepts I use on every chart, and teach in every session.</p>
+ <div class="grid">
+  <article class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 8h18M3 16h18M7 12l3-3 3 4 4-5"/></svg></div><h3>Support &amp; Resistance</h3><p>Price levels where buyers or sellers have repeatedly stepped in. They frame every trade idea.</p></article>
+  <article class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="7" height="10" rx="1"/><path d="M15 5v14M19 8v8"/></svg></div><h3>Order Block (OB)</h3><p>The last opposing candle before a strong move, where large orders often sit waiting.</p></article>
+  <article class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 18h16M12 6v12M9 9l3-3 3 3M9 15l3 3 3-3"/></svg></div><h3>Supply &amp; Demand Zones</h3><p>Areas where price left quickly, showing an imbalance between sellers and buyers.</p></article>
+  <article class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 14V4M19 20v-8"/><path d="M5 10h7M12 14h7" stroke-dasharray="2 3"/></svg></div><h3>Fair Value Gap (FVG)</h3><p>A three-candle gap that price tends to revisit to fill inefficiency before continuing.</p></article>
+  <article class="card glass"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 10h18M3 15h18M3 20h18"/><path d="M3 13h18" stroke-width="3" opacity=".6"/></svg></div><h3>Golden Zone (Fibonacci)</h3><p>The 0.618–0.786 retracement area, where pullbacks often end and trends resume.</p></article>
+ </div>
+</section>
+
+<section class="cta glass slot" id="contact" data-from="bottom">
+ <h2>Ready for your first guided trade?</h2>
+ <p>Tell me your experience level and goals. I will reply with a plan for your first week.</p>
+ <a class="btn" href="https://t.me/crypto_orator" target="_blank" rel="noopener"><svg><use href="#tg"/></svg>Start on Telegram</a>
+</section>
+
+<footer class="glass slot" data-from="left">
+ <div class="soc">
+  <a href="https://t.me/crypto_orator" aria-label="Telegram" target="_blank" rel="noopener"><svg><use href="#tg"/></svg></a>
+  <a href="https://x.com/crypto_orator" aria-label="X / Twitter" target="_blank" rel="noopener"><svg><use href="#x"/></svg></a>
+  <a href="mailto:info@cryptoorator.com" aria-label="Email"><svg><use href="#mail"/></svg></a>
+ </div>
+ <small>Risk disclaimer: Trading Forex, crypto and CFDs carries a high level of risk and may not suit every investor. You can lose some or all of your capital. Nothing here is financial advice. Past performance does not guarantee future results. Only trade with money you can afford to lose.</small>
+ <small>© 2026 Crypto Orator</small>
+</footer>
+</div>
+
+<a class="fab glass" href="https://t.me/crypto_orator" aria-label="Telegram" target="_blank" rel="noopener"><svg><use href="#tg"/></svg></a>
+
+<script>
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+/* glass cursor light */
+document.addEventListener('pointermove',e=>{const g=e.target.closest&&e.target.closest('.glass');if(g){const r=g.getBoundingClientRect();g.style.setProperty('--mx',(e.clientX-r.left)+'px');g.style.setProperty('--my',(e.clientY-r.top)+'px')}});
+
+/* ticker */
+const P={BTC:{p:67250,d:2},ETH:{p:2480,d:2},XAUUSD:{p:2650,d:2}};
+const fmt=(v,d)=>v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const open0={};
+function draw(){const one=Object.entries(P).map(([k,o])=>{open0[k]??=o.p;const c=(o.p/open0[k]-1)*100;return `<span><em>${k}</em>$${fmt(o.p,o.d)} <b class="${c>=0?'up':'dn'}">${c>=0?'▲':'▼'} ${Math.abs(c).toFixed(2)}%</b></span>`}).join('');
+ document.getElementById('track').innerHTML=one.repeat(4)}
+async function live(){try{const s=encodeURIComponent('["BTCUSDT","ETHUSDT","PAXGUSDT"]');
+ const r=await fetch('https://api.binance.com/api/v3/ticker/price?symbols='+s);const j=await r.json();
+ const m={BTCUSDT:'BTC',ETHUSDT:'ETH',PAXGUSDT:'XAUUSD'};j.forEach(i=>{P[m[i.symbol]].p=parseFloat(i.price)});return true}catch(e){return false}}
+async function tick(){if(!(await live())){for(const k in P)P[k].p*=1+(Math.random()-.5)*.0016}draw()}
+draw();tick();setInterval(tick,5000);
+
+/* preloader candles */
+const cv=document.getElementById('cv'),cx=cv.getContext('2d');
+const N=18,cs=[];let pr=50;for(let i=0;i<N;i++){const o=pr,c=o+(Math.random()-.42)*30;cs.push({o,c,h:Math.max(o,c)+Math.random()*12,l:Math.min(o,c)-Math.random()*12});pr=c}
+let t0=performance.now(),raf;
+function frame(now){const t=(now-t0)/1000;cx.clearRect(0,0,800,400);
+ const mn=Math.min(...cs.map(c=>c.l))-10,mx=Math.max(...cs.map(c=>c.h))+10,Y=v=>380-(v-mn)/(mx-mn)*350;
+ cx.strokeStyle='rgba(255,255,255,.06)';for(let i=1;i<5;i++){cx.beginPath();cx.moveTo(0,i*80);cx.lineTo(800,i*80);cx.stroke()}
+ cs.forEach((c,i)=>{const k=Math.min(1,Math.max(0,t*3-i*.35)),e=1-Math.pow(1-k,3);if(!k)return;
+  const w=Math.sin(t*2+i)*.03,x=25+i*42,up=c.c>=c.o,col=up?'#19e6a1':'#ff5d7a';
+  const f=v=>Y(c.o+(v-c.o)*e*(1+w));cx.shadowColor=col;cx.shadowBlur=18;cx.strokeStyle=col;cx.fillStyle=col;cx.lineWidth=3;
+  cx.beginPath();cx.moveTo(x+14,f(c.h));cx.lineTo(x+14,f(c.l));cx.stroke();
+  const a=f(c.o),b=f(c.c);cx.fillRect(x,Math.min(a,b),28,Math.max(4,Math.abs(a-b)))});
+ cx.shadowBlur=0;
+ cx.beginPath();cs.forEach((c,i)=>{const k=Math.min(1,Math.max(0,t*3-i*.35));if(k>0){const x=39+i*42;i?cx.lineTo(x,Y(c.c)):cx.moveTo(x,Y(c.c))}});
+ cx.strokeStyle='#2f8bff';cx.lineWidth=2;cx.shadowColor='#2f8bff';cx.shadowBlur=14;cx.stroke();
+ document.getElementById('pb').style.width=Math.min(100,t/(RM?.5:3.2)*100)+'%';
+ raf=requestAnimationFrame(frame)}
+raf=requestAnimationFrame(frame);
+
+/* labourer agents */
+const botSVG=`<svg viewBox="0 0 40 40"><circle class="beam" cx="20" cy="20" r="17" fill="none" stroke="#2f8bff" stroke-width="2" stroke-dasharray="6 5"/><rect x="9" y="12" width="22" height="17" rx="6" fill="#0c1a2e" stroke="#19e6a1" stroke-width="2"/><circle cx="15" cy="20" r="2.6" fill="#19e6a1"/><circle cx="25" cy="20" r="2.6" fill="#19e6a1"/><path d="M20 12V6" stroke="#2f8bff" stroke-width="2"/><circle cx="20" cy="5" r="2.5" fill="#2f8bff"/></svg>`;
+function mkBot(x,y){const b=document.createElement('div');b.className='bot';b.innerHTML=botSVG;b.style.transform=`translate(${x}px,${y}px)`;document.body.appendChild(b);return b}
+function sparks(x,y){for(let i=0;i<6;i++){const s=document.createElement('div');s.className='spark';s.style.left=x+'px';s.style.top=y+'px';document.body.appendChild(s);
+ s.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${(Math.random()-.5)*60}px,${(Math.random()-.5)*60}px)`,opacity:0}],{duration:500}).onfinish=()=>s.remove()}}
+const mv=(el,x,y,d)=>el.animate([{transform:el.style.transform},{transform:`translate(${x}px,${y}px)`}],{duration:d,easing:'cubic-bezier(.6,0,.3,1)',fill:'forwards'}).finished.then(()=>{el.style.transform=`translate(${x}px,${y}px)`});
+
+async function assemble(){
+ const slots=[...document.querySelectorAll('.slot')].filter(e=>!e.classList.contains('slot-t'));
+ const W=innerWidth,H=innerHeight,ease='cubic-bezier(.2,.9,.25,1)';
+ for(const el of slots){
+  const r=el.getBoundingClientRect(),from=el.dataset.from;
+  const vis=r.top<H&&r.bottom>0;
+  const ty=Math.max(10,Math.min(H-50,r.top+Math.min(r.height,H-r.top)/2));
+  if(!vis){el.style.opacity=1;continue}
+  const off={top:[0,-140],left:[-W*.5,0],right:[W*.5,0],bottom:[0,160]}[from]||[0,80];
+  const sx=from==='left'?-50:from==='right'?W+20:Math.random()*W,sy=from==='top'?-50:from==='bottom'?H+20:ty-20;
+  const bots=[0,1].map(i=>mkBot(sx,sy+i*30));
+  const px=from==='left'?r.left+r.width*.3:from==='right'?r.right-r.width*.3:r.left+r.width*(.3+Math.random()*.4);
+  await Promise.all(bots.map((b,i)=>mv(b,px+i*40,ty+(i?30:-30),RM?1:650)));
+  sparks(px,ty);
+  const slide=el.animate([{opacity:0,transform:`translate(${off[0]}px,${off[1]}px) scale(.96)`,filter:'blur(8px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:RM?1:850,easing:ease,fill:'forwards'});
+  el.style.opacity=1;
+  /* bots push the element in */
+  bots.forEach((b,i)=>mv(b,px+i*40-off[0]*.15,ty+(i?30:-30)-off[1]*.15,RM?1:850));
+  await slide.finished;
+  el.getAnimations().forEach(a=>a.cancel());
+  await Promise.all(bots.map(b=>mv(b,from==='right'?W+60:from==='left'?-60:Math.random()*W,from==='bottom'?H+60:-60,RM?1:500)));
+  bots.forEach(b=>b.remove());
+ }
+ document.querySelectorAll('.slot').forEach(e=>e.style.opacity=1);
+ document.getElementById('wrap').classList.remove('pre-asm');
+}
+(async()=>{await sleep(RM?600:3400);const p=document.getElementById('pre');p.classList.add('done');await sleep(500);cancelAnimationFrame(raf);await assemble()})();
+</script>
+</body></html>
